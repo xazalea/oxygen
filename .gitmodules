@@ -1,0 +1,5 @@
+[submodule "tiktok_source"]
+	path = tiktok_source
+	url = https://github.com/huaji233333/tiktok_source.git
+	branch = master
+

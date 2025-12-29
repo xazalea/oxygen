@@ -1,0 +1,40 @@
+{
+  "tiktok_api": {
+    "num_sessions": 1,
+    "collection_interval_seconds": 60,
+    "max_videos_per_batch": 100
+  },
+  "auto_training": {
+    "min_videos_for_update": 100,
+    "min_interactions_for_update": 1000,
+    "batch_retrain_interval_hours": 24,
+    "batch_epochs": 5,
+    "batch_size": 1024,
+    "learning_rate": 0.001
+  },
+  "real_time_training": {
+    "collection_interval_seconds": 60,
+    "max_videos_per_batch": 100
+  },
+  "serving": {
+    "enabled": true,
+    "port": 8000,
+    "host": "0.0.0.0"
+  },
+  "model": {
+    "device": "cuda",
+    "weights": {
+      "watch_time": 0.4,
+      "completion": 0.2,
+      "rewatch": 0.15,
+      "continuation": 0.15,
+      "skip_penalty": 0.05,
+      "fatigue_penalty": 0.05
+    }
+  },
+  "inference": {
+    "candidate_pool_size": 1000,
+    "feed_size": 20
+  }
+}
+

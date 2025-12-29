@@ -1,0 +1,20 @@
+# Ignore git directory if re-initialized
+.git/
+
+# Ignore compiled files
+*.dex
+*.jar
+*.arsc
+*.so
+*.bundle
+
+# Keep only source code
+!classes/
+!*.java
+!*.xml
+!*.json
+!*.html
+!*.js
+!*.der
+!*.png
+
