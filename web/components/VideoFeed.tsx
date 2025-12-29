@@ -8,6 +8,7 @@ import { useRecommendationEngine } from './RecommendationEngine'
 import { LoadingSpinner } from './UI/LoadingSpinner'
 import { ErrorDisplay } from './ErrorDisplay'
 import { SwipeIndicator } from './UI/SwipeIndicator'
+import { LiquidGlass } from './UI/LiquidGlass'
 
 export function VideoFeed() {
   const [videos, setVideos] = useState<VideoMetadata[]>([])
@@ -225,34 +226,37 @@ export function VideoFeed() {
 
       {/* Loading indicator for next videos */}
       {isLoading && videos.length > 0 && (
-        <motion.div 
-          className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <div className="glass px-4 py-2 rounded-full backdrop-blur-md">
-            <p className="text-white/80 text-xs font-medium">Loading more...</p>
-          </div>
-        </motion.div>
+        <LiquidGlass preset="pulse" className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 rounded-full">
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="px-4 py-2"
+          >
+            <div className="flex items-center gap-2">
+              <div className="spinner-uiverse w-4 h-4"></div>
+              <p className="text-white text-xs font-semibold">Loading more...</p>
+            </div>
+          </motion.div>
+        </LiquidGlass>
       )}
 
       {/* Pull to refresh indicator */}
       {currentIndex === 0 && pullDistance > 0 && (
-        <motion.div
-          className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20"
-          style={{ opacity: Math.min(pullDistance / 60, 1) }}
-        >
-          <div className="glass px-4 py-2 rounded-full backdrop-blur-md">
+        <LiquidGlass preset="pulse" className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20 rounded-full">
+          <motion.div
+            style={{ opacity: Math.min(pullDistance / 60, 1) }}
+            className="px-4 py-2"
+          >
             <motion.div
               animate={{ rotate: pullDistance > 60 ? 180 : 0 }}
               transition={{ duration: 0.2 }}
             >
-              <p className="text-white/80 text-xs font-medium">
+              <p className="text-white text-xs font-semibold">
                 {pullDistance > 60 ? 'Release to refresh' : 'Pull to refresh'}
               </p>
             </motion.div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </LiquidGlass>
       )}
 
       {/* Swipe indicators */}

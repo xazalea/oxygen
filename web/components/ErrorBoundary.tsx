@@ -2,6 +2,9 @@
 
 import { Component, ReactNode } from 'react'
 import { motion } from 'framer-motion'
+import { UiverseButton } from './UI/UiverseButton'
+import { LiquidGlass } from './UI/LiquidGlass'
+import { UiverseCard } from './UI/UiverseCard'
 
 interface Props {
   children: ReactNode
@@ -35,25 +38,29 @@ export class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div className="h-screen w-screen flex items-center justify-center bg-black">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center px-4"
-          >
-            <h1 className="text-2xl font-bold text-white mb-4">Something went wrong</h1>
-            <p className="text-white/60 mb-6">
-              {this.state.error?.message || 'An unexpected error occurred'}
-            </p>
-            <button
-              onClick={() => {
-                this.setState({ hasError: false, error: undefined })
-                window.location.reload()
-              }}
-              className="px-6 py-3 bg-white text-black rounded-full font-semibold hover:bg-white/90 transition-colors"
-            >
-              Reload Page
-            </button>
-          </motion.div>
+          <LiquidGlass preset="frost" className="rounded-2xl">
+            <UiverseCard className="p-8 text-center max-w-md">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <h1 className="text-2xl font-bold gradient-text-uiverse mb-4">Something went wrong</h1>
+                <p className="text-white/70 mb-6">
+                  {this.state.error?.message || 'An unexpected error occurred'}
+                </p>
+                <UiverseButton
+                  variant="primary"
+                  size="md"
+                  onClick={() => {
+                    this.setState({ hasError: false, error: undefined })
+                    window.location.reload()
+                  }}
+                >
+                  Reload Page
+                </UiverseButton>
+              </motion.div>
+            </UiverseCard>
+          </LiquidGlass>
         </div>
       )
     }

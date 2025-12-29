@@ -1,7 +1,9 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { TrendingUp, Eye, Heart, MessageCircle, Share2 } from 'lucide-react'
+import { TrendingUp, Eye, Heart } from 'lucide-react'
+import { LiquidGlass } from './LiquidGlass'
+import { UiverseCard } from './UiverseCard'
 
 interface VideoStatsProps {
   views: number
@@ -26,26 +28,30 @@ export function VideoStats({ views, likes, comments, shares, isTrending }: Video
       className="absolute top-20 right-4 flex flex-col gap-3 z-10"
     >
       {isTrending && (
-        <motion.div
-          animate={{ scale: [1, 1.1, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="glass px-3 py-1.5 rounded-full flex items-center gap-2"
-        >
-          <TrendingUp className="w-4 h-4 text-red-500" />
-          <span className="text-xs font-bold text-white">TRENDING</span>
-        </motion.div>
+        <LiquidGlass preset="pulse" className="rounded-full">
+          <motion.div
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="badge-uiverse px-4 py-2 flex items-center gap-2"
+          >
+            <TrendingUp className="w-4 h-4" />
+            <span className="text-xs font-bold">TRENDING</span>
+          </motion.div>
+        </LiquidGlass>
       )}
       
-      <div className="glass px-3 py-2 rounded-lg backdrop-blur-md">
-        <div className="flex items-center gap-2 text-white/80 text-xs mb-2">
-          <Eye className="w-3.5 h-3.5" />
-          <span className="font-semibold">{formatNumber(views)}</span>
-        </div>
-        <div className="flex items-center gap-2 text-white/80 text-xs">
-          <Heart className="w-3.5 h-3.5 fill-red-500 text-red-500" />
-          <span className="font-semibold">{formatNumber(likes)}</span>
-        </div>
-      </div>
+      <LiquidGlass preset="frost" className="rounded-xl">
+        <UiverseCard className="p-3">
+          <div className="flex items-center gap-2 text-white text-xs mb-2">
+            <Eye className="w-3.5 h-3.5" />
+            <span className="font-semibold">{formatNumber(views)}</span>
+          </div>
+          <div className="flex items-center gap-2 text-white text-xs">
+            <Heart className="w-3.5 h-3.5 fill-red-500 text-red-500" />
+            <span className="font-semibold">{formatNumber(likes)}</span>
+          </div>
+        </UiverseCard>
+      </LiquidGlass>
     </motion.div>
   )
 }

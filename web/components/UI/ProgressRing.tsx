@@ -25,7 +25,7 @@ export function ProgressRing({ progress, size = 40, strokeWidth = 3, className =
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="rgba(255, 255, 255, 0.2)"
+          stroke="rgba(255, 255, 255, 0.1)"
           strokeWidth={strokeWidth}
           fill="none"
         />
@@ -33,7 +33,7 @@ export function ProgressRing({ progress, size = 40, strokeWidth = 3, className =
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="white"
+          stroke="url(#gradient)"
           strokeWidth={strokeWidth}
           fill="none"
           strokeDasharray={circumference}
@@ -43,6 +43,12 @@ export function ProgressRing({ progress, size = 40, strokeWidth = 3, className =
           animate={{ strokeDashoffset: offset }}
           transition={{ duration: 0.3 }}
         />
+        <defs>
+          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#6366f1" />
+            <stop offset="100%" stopColor="#8b5cf6" />
+          </linearGradient>
+        </defs>
       </svg>
     </div>
   )

@@ -3,8 +3,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { VideoMetadata } from '@/lib/video-api'
-import { Heart, MessageCircle, Share2, MoreVertical, Volume2, VolumeX, Play, Pause } from 'lucide-react'
+import { Volume2, VolumeX, Play, Pause } from 'lucide-react'
 import { VideoStats } from './UI/VideoStats'
+import { VideoActions } from './VideoPlayer/VideoActions'
+import { CommentsModal } from './Comments/CommentsModal'
+import { ShareModal } from './Share/ShareModal'
+import { DuetOptions } from './Duet/DuetOptions'
+import { UiverseIconButton } from './UI/UiverseIconButton'
+import { LiquidGlass } from './UI/LiquidGlass'
 
 interface VideoPlayerProps {
   video: VideoMetadata
@@ -22,6 +28,10 @@ export function VideoPlayer({ video, isActive, onInteraction, onWatchTime }: Vid
   const [watchTime, setWatchTime] = useState(0)
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0)
   const [showSpeedMenu, setShowSpeedMenu] = useState(false)
+  const [showComments, setShowComments] = useState(false)
+  const [showShare, setShowShare] = useState(false)
+  const [showDuet, setShowDuet] = useState(false)
+  const [isFollowing, setIsFollowing] = useState(false)
   const controlsTimeoutRef = useRef<NodeJS.Timeout>()
 
   useEffect(() => {
@@ -60,12 +70,19 @@ export function VideoPlayer({ video, isActive, onInteraction, onWatchTime }: Vid
     onInteraction('like', !isLiked)
   }
 
-  const handleShare = () => {
-    onInteraction('share', true)
+  const handleComment = () => {
+    setShowComments(true)
+    onInteraction('comment', true)
   }
 
-  const handleComment = () => {
-    onInteraction('comment', true)
+  const handleFollow = () => {
+    setIsFollowing(!isFollowing)
+    // In production, call API to follow/unfollow
+  }
+
+  const handleShare = () => {
+    setShowShare(true)
+    onInteraction('share', true)
   }
 
   const showControlsTemporarily = () => {
@@ -109,15 +126,17 @@ export function VideoPlayer({ video, isActive, onInteraction, onWatchTime }: Vid
       
       {/* Time indicator */}
       {showControls && videoRef.current && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="absolute bottom-12 left-1/2 transform -translate-x-1/2 glass px-3 py-1.5 rounded-full"
-        >
-          <span className="text-white text-xs font-medium">
-            {Math.floor(videoRef.current.currentTime)}s / {Math.floor(video.duration)}s
-          </span>
-        </motion.div>
+        <LiquidGlass preset="pulse" className="absolute bottom-12 left-1/2 transform -translate-x-1/2 rounded-full">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="px-4 py-2"
+          >
+            <span className="text-white text-xs font-semibold">
+              {Math.floor(videoRef.current.currentTime)}s / {Math.floor(video.duration)}s
+            </span>
+          </motion.div>
+        </LiquidGlass>
       )}
 
       {/* Controls overlay */}
@@ -131,129 +150,90 @@ export function VideoPlayer({ video, isActive, onInteraction, onWatchTime }: Vid
             onClick={() => setShowControls(false)}
           >
             <div className="flex gap-4">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  if (videoRef.current) {
-                    videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 10)
-                  }
-                }}
-                className="glass px-4 py-2 rounded-full text-white"
-              >
-                -10s
-              </button>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  if (videoRef.current) {
-                    if (videoRef.current.paused) {
-                      videoRef.current.play()
-                      setIsPlaying(true)
-                    } else {
-                      videoRef.current.pause()
-                      setIsPlaying(false)
+              <LiquidGlass preset="edge" className="rounded-full">
+                <UiverseIconButton
+                  icon={<span className="text-white font-semibold">-10s</span>}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (videoRef.current) {
+                      videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 10)
                     }
-                  }
-                }}
-                className="glass px-6 py-3 rounded-full text-white flex items-center justify-center"
-              >
-                {isPlaying ? (
-                  <Pause className="w-6 h-6" />
-                ) : (
-                  <Play className="w-6 h-6 ml-1" />
-                )}
-              </motion.button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  if (videoRef.current) {
-                    videoRef.current.currentTime = Math.min(
-                      videoRef.current.duration,
-                      videoRef.current.currentTime + 10
-                    )
-                  }
-                }}
-                className="glass px-4 py-2 rounded-full text-white"
-              >
-                +10s
-              </button>
+                  }}
+                  size="md"
+                />
+              </LiquidGlass>
+              <LiquidGlass preset="default" className="rounded-full">
+                <UiverseIconButton
+                  icon={isPlaying ? <Pause className="w-6 h-6 text-white" /> : <Play className="w-6 h-6 text-white ml-1" />}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (videoRef.current) {
+                      if (videoRef.current.paused) {
+                        videoRef.current.play()
+                        setIsPlaying(true)
+                      } else {
+                        videoRef.current.pause()
+                        setIsPlaying(false)
+                      }
+                    }
+                  }}
+                  variant="primary"
+                  size="lg"
+                />
+              </LiquidGlass>
+              <LiquidGlass preset="edge" className="rounded-full">
+                <UiverseIconButton
+                  icon={<span className="text-white font-semibold">+10s</span>}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (videoRef.current) {
+                      videoRef.current.currentTime = Math.min(
+                        videoRef.current.duration,
+                        videoRef.current.currentTime + 10
+                      )
+                    }
+                  }}
+                  size="md"
+                />
+              </LiquidGlass>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Right side actions */}
-      <div className="absolute right-4 bottom-20 flex flex-col gap-6 items-center z-10">
-        <motion.button
-          whileTap={{ scale: 0.85 }}
-          whileHover={{ scale: 1.1 }}
-          onClick={handleLike}
-          className="flex flex-col items-center gap-2 cursor-pointer"
-        >
-          <motion.div
-            animate={{ 
-              scale: isLiked ? [1, 1.4, 1.2] : 1,
-            }}
-            transition={{ duration: 0.3 }}
-            className={`p-3 rounded-full transition-colors ${
-              isLiked ? 'bg-red-500 shadow-lg shadow-red-500/50' : 'bg-white/20 glass hover:bg-white/30'
-            }`}
-          >
-            <Heart className={`w-6 h-6 ${isLiked ? 'fill-white text-white' : 'text-white'}`} />
-          </motion.div>
-          <motion.span 
-            className="text-xs font-semibold text-white drop-shadow-lg"
-            animate={{ scale: isLiked ? [1, 1.2, 1] : 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            {formatNumber(video.stats.likes + (isLiked ? 1 : 0))}
-          </motion.span>
-        </motion.button>
+      <VideoActions
+        video={video}
+        isLiked={isLiked}
+        onLike={handleLike}
+        onComment={handleComment}
+        onShare={handleShare}
+        isFollowing={isFollowing}
+        onFollow={handleFollow}
+        onDuet={() => setShowDuet(true)}
+      />
 
-        <motion.button
-          whileTap={{ scale: 0.85 }}
-          whileHover={{ scale: 1.1 }}
-          onClick={handleComment}
-          className="flex flex-col items-center gap-2 cursor-pointer"
-        >
-          <motion.div 
-            className="p-3 rounded-full bg-white/20 glass hover:bg-white/30 transition-colors"
-            whileHover={{ scale: 1.1 }}
-          >
-            <MessageCircle className="w-6 h-6 text-white" />
-          </motion.div>
-          <span className="text-xs font-semibold text-white drop-shadow-lg">
-            {formatNumber(video.stats.comments)}
-          </span>
-        </motion.button>
+      {/* Comments Modal */}
+      <CommentsModal
+        video={video}
+        isOpen={showComments}
+        onClose={() => setShowComments(false)}
+        commentCount={video.stats.comments}
+      />
 
-        <motion.button
-          whileTap={{ scale: 0.85 }}
-          whileHover={{ scale: 1.1 }}
-          onClick={handleShare}
-          className="flex flex-col items-center gap-2 cursor-pointer"
-        >
-          <motion.div 
-            className="p-3 rounded-full bg-white/20 glass hover:bg-white/30 transition-colors"
-            whileHover={{ scale: 1.1 }}
-          >
-            <Share2 className="w-6 h-6 text-white" />
-          </motion.div>
-          <span className="text-xs font-semibold text-white drop-shadow-lg">
-            {formatNumber(video.stats.shares)}
-          </span>
-        </motion.button>
+      {/* Share Modal */}
+      <ShareModal
+        video={video}
+        isOpen={showShare}
+        onClose={() => setShowShare(false)}
+      />
 
-        <motion.button 
-          className="p-3 rounded-full bg-white/20 glass hover:bg-white/30 transition-colors cursor-pointer"
-          whileTap={{ scale: 0.85 }}
-          whileHover={{ scale: 1.1 }}
-        >
-          <MoreVertical className="w-6 h-6 text-white" />
-        </motion.button>
-      </div>
+      {/* Duet Options */}
+      <DuetOptions
+        video={video}
+        isOpen={showDuet}
+        onClose={() => setShowDuet(false)}
+      />
 
       {/* Bottom info */}
       <motion.div 
@@ -263,21 +243,23 @@ export function VideoPlayer({ video, isActive, onInteraction, onWatchTime }: Vid
         transition={{ delay: 0.3 }}
       >
         <div className="flex items-center gap-3 mb-3">
-          <motion.div 
-            className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 flex items-center justify-center text-white font-bold text-base shadow-xl border-2 border-white/20"
-            whileHover={{ scale: 1.15, rotate: 5 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            {video.author.avatar ? (
-              <img 
-                src={video.author.avatar} 
-                alt={video.author.username}
-                className="w-full h-full rounded-full object-cover"
-              />
-            ) : (
-              video.author.username[0].toUpperCase()
-            )}
-          </motion.div>
+          <LiquidGlass preset="default" className="rounded-full">
+            <motion.div 
+              className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-base shadow-xl"
+              whileHover={{ scale: 1.15, rotate: 5 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {video.author.avatar ? (
+                <img 
+                  src={video.author.avatar} 
+                  alt={video.author.username}
+                  className="w-full h-full rounded-full object-cover"
+                />
+              ) : (
+                video.author.username[0].toUpperCase()
+              )}
+            </motion.div>
+          </LiquidGlass>
           <div className="flex-1">
             <motion.span 
               className="font-bold text-white text-lg drop-shadow-lg block"
@@ -308,28 +290,29 @@ export function VideoPlayer({ video, isActive, onInteraction, onWatchTime }: Vid
             transition={{ delay: 0.5 }}
           >
             {video.hashtags.slice(0, 3).map((tag, idx) => (
-              <span
-                key={idx}
-                className="text-primary-400 text-xs font-semibold hover:text-primary-300 cursor-pointer"
-              >
-                #{tag}
-              </span>
+              <LiquidGlass key={idx} preset="pulse" className="rounded-full">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 text-xs font-semibold hover:from-indigo-300 hover:to-purple-300 cursor-pointer px-2 py-1 block">
+                  #{tag}
+                </span>
+              </LiquidGlass>
             ))}
           </motion.div>
         )}
         {video.music && (
-          <motion.div 
-            className="flex items-center gap-2 text-white/90 text-xs font-medium bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm w-fit"
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.6 }}
-            whileHover={{ scale: 1.05, bg: 'white/20' }}
-          >
-            <span className="text-base animate-pulse">🎵</span>
-            <span className="drop-shadow-md truncate max-w-[200px]">
-              {video.music.title} - {video.music.author}
-            </span>
-          </motion.div>
+          <LiquidGlass preset="frost" className="rounded-full w-fit">
+            <motion.div 
+              className="flex items-center gap-2 text-white text-xs font-semibold px-4 py-2"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.6 }}
+              whileHover={{ scale: 1.05 }}
+            >
+              <span className="text-base animate-pulse">🎵</span>
+              <span className="truncate max-w-[200px]">
+                {video.music.title} - {video.music.author}
+              </span>
+            </motion.div>
+          </LiquidGlass>
         )}
       </motion.div>
 
@@ -346,49 +329,50 @@ export function VideoPlayer({ video, isActive, onInteraction, onWatchTime }: Vid
       <div className="absolute top-4 right-4 flex gap-2 z-20">
         {/* Playback speed */}
         <div className="relative">
-          <button
-            onClick={() => setShowSpeedMenu(!showSpeedMenu)}
-            className="p-2 rounded-full bg-white/20 glass hover:bg-white/30 transition-colors"
-          >
-            <span className="text-white text-xs font-semibold">{playbackSpeed}x</span>
-          </button>
+          <LiquidGlass preset="edge" className="rounded-full">
+            <UiverseIconButton
+              icon={<span className="text-white text-xs font-semibold">{playbackSpeed}x</span>}
+              onClick={() => setShowSpeedMenu(!showSpeedMenu)}
+              size="sm"
+            />
+          </LiquidGlass>
           {showSpeedMenu && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="absolute top-12 right-0 glass rounded-lg p-2 min-w-[80px]"
-            >
-              {[0.5, 0.75, 1.0, 1.25, 1.5, 2.0].map((speed) => (
-                <button
-                  key={speed}
-                  onClick={() => {
-                    setPlaybackSpeed(speed)
-                    setShowSpeedMenu(false)
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded text-xs transition-colors ${
-                    playbackSpeed === speed
-                      ? 'bg-white/30 text-white font-semibold'
-                      : 'text-white/80 hover:bg-white/20'
-                  }`}
-                >
-                  {speed}x
-                </button>
-              ))}
-            </motion.div>
+            <LiquidGlass preset="frost" className="absolute top-12 right-0 rounded-xl">
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-2 min-w-[100px]"
+              >
+                {[0.5, 0.75, 1.0, 1.25, 1.5, 2.0].map((speed) => (
+                  <motion.button
+                    key={speed}
+                    onClick={() => {
+                      setPlaybackSpeed(speed)
+                      setShowSpeedMenu(false)
+                    }}
+                    whileHover={{ x: 3 }}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all ripple-uiverse ${
+                      playbackSpeed === speed
+                        ? 'bg-gradient-to-r from-indigo-500/30 to-purple-500/30 text-white font-semibold'
+                        : 'text-white/80 hover:bg-white/10'
+                    }`}
+                  >
+                    {speed}x
+                  </motion.button>
+                ))}
+              </motion.div>
+            </LiquidGlass>
           )}
         </div>
 
         {/* Volume control */}
-        <button
-          onClick={() => setIsMuted(!isMuted)}
-          className="p-2 rounded-full bg-white/20 glass hover:bg-white/30 transition-colors"
-        >
-          {isMuted ? (
-            <VolumeX className="w-5 h-5 text-white" />
-          ) : (
-            <Volume2 className="w-5 h-5 text-white" />
-          )}
-        </button>
+        <LiquidGlass preset="edge" className="rounded-full">
+          <UiverseIconButton
+            icon={isMuted ? <VolumeX className="w-5 h-5 text-white" /> : <Volume2 className="w-5 h-5 text-white" />}
+            onClick={() => setIsMuted(!isMuted)}
+            size="sm"
+          />
+        </LiquidGlass>
       </div>
     </div>
   )

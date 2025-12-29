@@ -4,12 +4,6 @@
   "devCommand": "cd web && npm run dev",
   "installCommand": "cd web && npm install",
   "framework": "nextjs",
-  "functions": {
-    "web/app/api/**/*.ts": {
-      "runtime": "nodejs20.x",
-      "maxDuration": 60
-    }
-  },
   "headers": [
     {
       "source": "/(.*)",
