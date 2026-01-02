@@ -111,9 +111,8 @@ export function StoriesFeed({ userId, onClose }: StoriesFeedProps) {
           <UiverseIconButton
             onClick={onClose}
             className="absolute top-4 right-4"
-          >
-            <X className="w-6 h-6" />
-          </UiverseIconButton>
+            icon={<X className="w-6 h-6 text-white" />}
+          />
         )}
       </div>
     )
@@ -173,9 +172,10 @@ export function StoriesFeed({ userId, onClose }: StoriesFeedProps) {
             </div>
           </div>
           {onClose && (
-            <UiverseIconButton onClick={onClose}>
-              <X className="w-5 h-5" />
-            </UiverseIconButton>
+            <UiverseIconButton 
+              onClick={onClose}
+              icon={<X className="w-5 h-5" />}
+            />
           )}
         </div>
       </LiquidGlass>
@@ -187,18 +187,18 @@ export function StoriesFeed({ userId, onClose }: StoriesFeedProps) {
             <p className="text-white mb-4">{currentStory.caption}</p>
           )}
           <div className="flex items-center gap-4">
-            <UiverseIconButton>
-              <Heart className="w-6 h-6" />
-            </UiverseIconButton>
-            <UiverseIconButton>
-              <MessageCircle className="w-6 h-6" />
-            </UiverseIconButton>
-            <UiverseIconButton>
-              <Share2 className="w-6 h-6" />
-            </UiverseIconButton>
-            <UiverseIconButton>
-              <MoreVertical className="w-6 h-6" />
-            </UiverseIconButton>
+            <UiverseIconButton
+              icon={<Heart className="w-6 h-6" />}
+            />
+            <UiverseIconButton
+              icon={<MessageCircle className="w-6 h-6" />}
+            />
+            <UiverseIconButton
+              icon={<Share2 className="w-6 h-6" />}
+            />
+            <UiverseIconButton
+              icon={<MoreVertical className="w-6 h-6" />}
+            />
           </div>
         </LiquidGlass>
       </div>
