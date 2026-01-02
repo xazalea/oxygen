@@ -6,6 +6,7 @@ import { X, Send, Heart, MoreVertical } from 'lucide-react'
 import { VideoMetadata } from '@/lib/video-api'
 import { UiverseInput } from '@/components/UI/UiverseInput'
 import { UiverseIconButton } from '@/components/UI/UiverseIconButton'
+import { UiverseButton } from '@/components/UI/UiverseButton'
 import { UiverseCard } from '@/components/UI/UiverseCard'
 
 interface Comment {
