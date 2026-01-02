@@ -56,6 +56,7 @@ export function VideoFeed() {
       } else {
         setVideos(trending)
       }
+      setIsLoading(false)
     } catch (error: any) {
       console.error('Error loading videos:', error)
       setIsLoading(false)
