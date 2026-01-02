@@ -1,4 +1,5 @@
 import { loadPyodideInstance, getPyodideInstance } from './pyodide-loader'
+import { getRecommendationFeaturesService, RecommendationFeatures } from './classyvision/recommendation-features'
 
 export interface Interaction {
   type: 'like' | 'share' | 'comment' | 'watch' | 'skip'
@@ -13,11 +14,21 @@ export interface UserState {
   interactions: Interaction[]
 }
 
+export interface VideoWithFeatures {
+  id: string
+  features?: RecommendationFeatures
+  visualEmbedding?: Float32Array
+  category?: string
+  tags?: string[]
+}
+
 class AlgorithmBridge {
   private pyodide: any = null
   private isInitialized = false
   private userState: UserState | null = null
   private engineInstance: any = null
+  private recommendationFeatures = getRecommendationFeaturesService()
+  private videoFeaturesCache: Map<string, RecommendationFeatures> = new Map()
 
   async initialize(): Promise<void> {
     if (this.isInitialized) return
@@ -145,10 +156,57 @@ json.dumps(recommendations)
     }
 
     try {
-      const videosJson = JSON.stringify(videos).replace(/'/g, "\\'")
+      // Enhance videos with ClassyVision features if available
+      const videosWithFeatures: VideoWithFeatures[] = await Promise.all(
+        videos.map(async (video) => {
+          // Check cache first
+          const cached = this.videoFeaturesCache.get(video.id)
+          if (cached) {
+            return {
+              ...video,
+              features: cached,
+              visualEmbedding: cached.visualFeatures,
+              category: cached.category,
+              tags: cached.tags
+            }
+          }
+
+          // Try to extract features if video URL is available
+          if (video.videoUrl && typeof window !== 'undefined') {
+            try {
+              const features = await this.recommendationFeatures.extractFeaturesFromURL(
+                video.videoUrl,
+                { includeTemporal: true, includeModeration: false }
+              )
+              this.videoFeaturesCache.set(video.id, features)
+              return {
+                ...video,
+                features,
+                visualEmbedding: features.visualFeatures,
+                category: features.category,
+                tags: features.tags
+              }
+            } catch (error) {
+              console.warn(`Failed to extract features for video ${video.id}:`, error)
+            }
+          }
+
+          return video
+        })
+      )
+
+      // Convert features to JSON-serializable format
+      const videosForPython = videosWithFeatures.map(v => ({
+        ...v,
+        visualEmbedding: v.visualEmbedding ? Array.from(v.visualEmbedding) : undefined,
+        features: undefined // Don't send full features object
+      }))
+
+      const videosJson = JSON.stringify(videosForPython).replace(/'/g, "\\'")
       this.pyodide.runPython(`
 import json
 from algorithm_core import RecommendationEngine
+import numpy as np
 
 # Get or create engine instance
 try:
@@ -157,11 +215,29 @@ except NameError:
     engine = RecommendationEngine()
 
 videos = json.loads('${videosJson}')
+# Convert embeddings to numpy arrays if present
+for video in videos:
+    if video.get('visualEmbedding'):
+        video['visualEmbedding'] = np.array(video['visualEmbedding'], dtype=np.float32)
 engine.add_videos(videos)
       `)
     } catch (error) {
       console.error('Error adding videos:', error)
     }
+  }
+
+  /**
+   * Add video features to cache (called when features are extracted)
+   */
+  cacheVideoFeatures(videoId: string, features: RecommendationFeatures): void {
+    this.videoFeaturesCache.set(videoId, features)
+  }
+
+  /**
+   * Get cached video features
+   */
+  getCachedFeatures(videoId: string): RecommendationFeatures | undefined {
+    return this.videoFeaturesCache.get(videoId)
   }
 
   async recordInteraction(interaction: Interaction): Promise<void> {

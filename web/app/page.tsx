@@ -5,14 +5,16 @@ import { RecommendationEngineProvider } from '@/components/RecommendationEngine'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { BottomNav } from '@/components/Navigation/BottomNav'
 import { SideMenu } from '@/components/Navigation/SideMenu'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Menu } from 'lucide-react'
 import { UiverseIconButton } from '@/components/UI/UiverseIconButton'
 import { UiverseButton } from '@/components/UI/UiverseButton'
 import { LiquidGlass } from '@/components/UI/LiquidGlass'
+import { WalletDisplay } from '@/components/Currency/WalletDisplay'
 
 export default function Home() {
   const [showMenu, setShowMenu] = useState(false)
+  const userId = 'user-1' // TODO: Get from auth
 
   return (
     <ErrorBoundary>
@@ -22,11 +24,14 @@ export default function Home() {
           <header className="px-4 py-3 border-b border-white/10 z-10">
             <div className="flex items-center justify-between mb-3">
               <h1 className="text-xl font-bold gradient-text-uiverse">For You</h1>
-              <UiverseIconButton
-                icon={<Menu className="w-6 h-6 text-white" />}
-                onClick={() => setShowMenu(true)}
-                size="md"
-              />
+              <div className="flex items-center gap-3">
+                <WalletDisplay userId={userId} compact={true} />
+                <UiverseIconButton
+                  icon={<Menu className="w-6 h-6 text-white" />}
+                  onClick={() => setShowMenu(true)}
+                  size="md"
+                />
+              </div>
             </div>
             <div className="flex gap-4">
               <LiquidGlass preset="pulse" className="rounded-full">

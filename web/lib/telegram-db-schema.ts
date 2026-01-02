@@ -236,6 +236,98 @@ export interface NotificationRecord {
   createdAt: number
 }
 
+// Currency System Schemas
+export interface CurrencyWalletRecord {
+  id: string
+  userId: string
+  balance: number
+  totalEarned: number
+  totalSpent: number
+  lastUpdated: number
+  createdAt: number
+}
+
+export interface CurrencyTransactionRecord {
+  id: string
+  userId: string
+  type: 'earned' | 'spent' | 'transferred'
+  amount: number
+  source: 'investment' | 'daily_reward' | 'achievement' | 'boost' | 'tip' | 'premium' | 'badge' | 'exclusive' | 'referral' | 'streak'
+  metadata?: {
+    postId?: string
+    investmentId?: string
+    achievementId?: string
+    boostId?: string
+    tipId?: string
+    badgeId?: string
+    [key: string]: any
+  }
+  timestamp: number
+  createdAt: number
+}
+
+export interface CurrencyRewardRecord {
+  id: string
+  userId: string
+  type: 'daily_login' | 'achievement' | 'streak' | 'referral' | 'bonus' | 'challenge'
+  amount: number
+  claimed: boolean
+  claimedAt?: number
+  expiresAt?: number
+  metadata?: Record<string, any>
+  createdAt: number
+}
+
+// Investment System Schemas
+export interface InvestmentRecord {
+  id: string
+  userId: string
+  postId: string
+  amount: number
+  timestamp: number
+  initialValuation: number
+  returnAmount?: number
+  returnTimestamp?: number
+  status: 'active' | 'returned' | 'failed'
+  roi?: number // Return on investment percentage
+  createdAt: number
+  updatedAt: number
+}
+
+export interface InvestmentPoolRecord {
+  id: string
+  postId: string
+  totalInvested: number
+  investorCount: number
+  currentValuation: number
+  initialValuation: number
+  performanceMetrics: {
+    views: number
+    likes: number
+    shares: number
+    comments: number
+    engagementRate: number
+  }
+  creatorReputation: number // 0-1 scale
+  timeDecayFactor: number // 0-1 scale
+  lastUpdated: number
+  createdAt: number
+}
+
+export interface InvestmentReturnRecord {
+  id: string
+  investmentId: string
+  userId: string
+  postId: string
+  originalAmount: number
+  returnAmount: number
+  roi: number
+  earlyBonus: number
+  valuationMultiplier: number
+  processedAt: number
+  createdAt: number
+}
+
 /**
  * Table names
  */
@@ -251,7 +343,13 @@ export const TABLES = {
   COMMUNITIES: 'communities',
   LIVE_STREAMS: 'live_streams',
   COLLECTIONS: 'collections',
-  NOTIFICATIONS: 'notifications'
+  NOTIFICATIONS: 'notifications',
+  CURRENCY_WALLETS: 'currency_wallets',
+  CURRENCY_TRANSACTIONS: 'currency_transactions',
+  CURRENCY_REWARDS: 'currency_rewards',
+  INVESTMENTS: 'investments',
+  INVESTMENT_POOLS: 'investment_pools',
+  INVESTMENT_RETURNS: 'investment_returns'
 } as const
 
 /**

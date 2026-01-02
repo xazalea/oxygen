@@ -11,16 +11,21 @@ import { UiverseButton } from '@/components/UI/UiverseButton'
 import { UiverseIconButton } from '@/components/UI/UiverseIconButton'
 import { LiquidGlass } from '@/components/UI/LiquidGlass'
 import { UiverseCard } from '@/components/UI/UiverseCard'
+import { WalletDisplay } from '@/components/Currency/WalletDisplay'
+import { PortfolioView } from '@/components/Investing/PortfolioView'
+import { UiverseTabs } from '@/components/UI/UiverseComponents'
+import { useState, useEffect } from 'react'
 
 export default function ProfilePage() {
   const [showMenu, setShowMenu] = useState(false)
-  const [activeTab, setActiveTab] = useState<'videos' | 'liked' | 'saved'>('videos')
+  const [activeTab, setActiveTab] = useState<'videos' | 'liked' | 'saved' | 'portfolio'>('videos')
   const [videos, setVideos] = useState<VideoMetadata[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
+  const userId = 'user-1' // TODO: Get from auth
 
   // Mock user data
   const user = {
-    id: 'user-1',
+    id: userId,
     username: 'oxygen_user',
     displayName: 'Oxygen User',
     bio: 'Creating amazing content on Oxygen 🚀',
@@ -34,6 +39,7 @@ export default function ProfilePage() {
     { id: 'videos' as const, label: 'Videos', icon: Grid },
     { id: 'liked' as const, label: 'Liked', icon: Heart },
     { id: 'saved' as const, label: 'Saved', icon: Bookmark },
+    { id: 'portfolio' as const, label: 'Portfolio', icon: Grid },
   ]
 
   return (
@@ -66,6 +72,11 @@ export default function ProfilePage() {
               Edit profile
             </UiverseButton>
           </div>
+        </div>
+
+        {/* Wallet Display */}
+        <div className="mb-4">
+          <WalletDisplay userId={userId} compact={false} />
         </div>
 
         {/* Stats */}
@@ -122,7 +133,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
         {activeTab === 'videos' && (
           <div className="h-full">
             {videos.length > 0 ? (
@@ -147,6 +158,11 @@ export default function ProfilePage() {
         {activeTab === 'saved' && (
           <div className="h-full flex items-center justify-center">
             <p className="text-white/60">Saved videos coming soon</p>
+          </div>
+        )}
+        {activeTab === 'portfolio' && (
+          <div className="p-4">
+            <PortfolioView userId={userId} />
           </div>
         )}
       </div>

@@ -13,6 +13,7 @@ import { UiverseButton } from '@/components/UI/UiverseButton'
 import { UiverseIconButton } from '@/components/UI/UiverseIconButton'
 import { LiquidGlass } from '@/components/UI/LiquidGlass'
 import { UiverseCard } from '@/components/UI/UiverseCard'
+import { WalletDisplay } from '@/components/Currency/WalletDisplay'
 
 export default function UserPage() {
   const params = useParams()
@@ -81,6 +82,11 @@ export default function UserPage() {
                   )}
                 </UiverseButton>
               </div>
+            </div>
+
+            {/* Wallet Display */}
+            <div className="mb-4">
+              <WalletDisplay userId={user.id} compact={false} />
             </div>
 
             {/* Stats */}

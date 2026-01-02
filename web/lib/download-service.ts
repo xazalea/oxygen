@@ -5,7 +5,7 @@
  */
 
 import { getTikTokDownloader, TikTokDownloader } from './tiktok-downloader'
-import { getTelegramStorage, TelegramStorage } from './telegram-storage'
+import { getUnifiedStorage, UnifiedStorage } from './unified-storage'
 import { getDBOperations, TelegramDBOperations } from './telegram-db-operations'
 import { DownloadRecord } from './telegram-db-schema'
 
@@ -17,7 +17,7 @@ export interface DownloadQueueItem {
 
 export class DownloadService {
   private downloader: TikTokDownloader
-  private storage: TelegramStorage
+  private storage: UnifiedStorage
   private db: TelegramDBOperations
   private isProcessing: boolean = false
   private maxConcurrent: number = parseInt(process.env.MAX_CONCURRENT_DOWNLOADS || '3', 10)
@@ -25,8 +25,10 @@ export class DownloadService {
 
   constructor() {
     this.downloader = getTikTokDownloader()
-    this.storage = getTelegramStorage()
+    this.storage = getUnifiedStorage()
     this.db = getDBOperations()
+    // Initialize unified storage
+    this.storage.initialize().catch(console.warn)
   }
 
   /**
@@ -108,12 +110,15 @@ export class DownloadService {
       // Update progress
       await this.db.updateDownloadStatus(download.id, 'uploading', 70)
 
-      // Upload to Telegram storage
+      // Upload to unified storage (round-robin between Telegram and Streamtape)
       const fileName = `videos/${download.videoId}.mp4`
       const metadata = await this.storage.uploadFile(fileName, videoBuffer, {
         mimeType: 'video/mp4',
         description: `TikTok video: ${download.tiktokId}`
       })
+      
+      // Store mapping for future retrieval
+      this.storage.storeFileMapping(metadata.fileId, metadata.storageType)
 
       // Update progress
       await this.db.updateDownloadStatus(download.id, 'uploading', 90)

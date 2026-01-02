@@ -12,6 +12,8 @@ import { DuetOptions } from './Duet/DuetOptions'
 import { UiverseIconButton } from './UI/UiverseIconButton'
 import { UiverseButton } from './UI/UiverseButton'
 import { LiquidGlass } from './UI/LiquidGlass'
+import { InvestmentButton } from './Investing/InvestmentButton'
+import { InvestmentStats } from './Investing/InvestmentStats'
 
 interface VideoPlayerProps {
   video: VideoMetadata
@@ -33,7 +35,43 @@ export function VideoPlayer({ video, isActive, onInteraction, onWatchTime }: Vid
   const [showShare, setShowShare] = useState(false)
   const [showDuet, setShowDuet] = useState(false)
   const [isFollowing, setIsFollowing] = useState(false)
+  const [currentValuation, setCurrentValuation] = useState(0)
+  const [investorCount, setInvestorCount] = useState(0)
+  const [userInvestment, setUserInvestment] = useState<number | undefined>(undefined)
+  const [userId, setUserId] = useState<string>('user-1') // TODO: Get from auth
   const controlsTimeoutRef = useRef<NodeJS.Timeout>()
+
+  // Load investment data
+  useEffect(() => {
+    if (isActive && video.id) {
+      loadInvestmentData()
+    }
+  }, [isActive, video.id])
+
+  const loadInvestmentData = async () => {
+    try {
+      const [poolResponse, portfolioResponse] = await Promise.all([
+        fetch(`/api/investments/pool?postId=${video.id}`),
+        fetch(`/api/investments/portfolio?userId=${userId}`)
+      ])
+
+      if (poolResponse.ok) {
+        const pool = await poolResponse.json()
+        setCurrentValuation(pool.currentValuation || 0)
+        setInvestorCount(pool.investorCount || 0)
+      }
+
+      if (portfolioResponse.ok) {
+        const portfolio = await portfolioResponse.json()
+        const userInv = portfolio.active?.find((inv: any) => inv.postId === video.id)
+        if (userInv) {
+          setUserInvestment(userInv.amount)
+        }
+      }
+    } catch (error) {
+      console.error('Error loading investment data:', error)
+    }
+  }
 
   useEffect(() => {
     if (isActive && videoRef.current) {
@@ -216,16 +254,28 @@ export function VideoPlayer({ video, isActive, onInteraction, onWatchTime }: Vid
       </AnimatePresence>
 
       {/* Right side actions */}
-      <VideoActions
-        video={video}
-        isLiked={isLiked}
-        onLike={handleLike}
-        onComment={handleComment}
-        onShare={handleShare}
-        isFollowing={isFollowing}
-        onFollow={handleFollow}
-        onDuet={() => setShowDuet(true)}
-      />
+      <div className="absolute right-4 bottom-32 flex flex-col gap-3 z-10">
+        <VideoActions
+          video={video}
+          isLiked={isLiked}
+          onLike={handleLike}
+          onComment={handleComment}
+          onShare={handleShare}
+          isFollowing={isFollowing}
+          onFollow={handleFollow}
+          onDuet={() => setShowDuet(true)}
+        />
+        
+        {/* Investment Button */}
+        <InvestmentButton
+          postId={video.id}
+          userId={userId}
+          currentValuation={currentValuation}
+          investorCount={investorCount}
+          userInvestment={userInvestment}
+          compact={true}
+        />
+      </div>
 
       {/* Comments Modal */}
       <CommentsModal
@@ -338,6 +388,13 @@ export function VideoPlayer({ video, isActive, onInteraction, onWatchTime }: Vid
         shares={video.stats.shares}
         isTrending={video.stats.views > 100000}
       />
+
+      {/* Investment Stats */}
+      {investorCount > 0 && (
+        <div className="absolute top-20 left-4 z-10">
+          <InvestmentStats postId={video.id} />
+        </div>
+      )}
 
       {/* Top controls */}
       <div className="absolute top-4 right-4 flex gap-2 z-20">

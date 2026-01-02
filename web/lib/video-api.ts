@@ -5,19 +5,19 @@ import { getTikTokService } from './tiktok-service'
 // Using a function to prevent webpack from statically analyzing the require
 function getServerModules() {
   if (typeof window !== 'undefined') {
-    return { getDBOperations: null, getTelegramStorage: null }
+    return { getDBOperations: null, getUnifiedStorage: null }
   }
   
   try {
     // Use eval to prevent webpack from statically analyzing this
     const dbOps = eval('require')('./telegram-db-operations')
-    const storage = eval('require')('./telegram-storage')
+    const unifiedStorage = eval('require')('./unified-storage')
     return {
       getDBOperations: dbOps.getDBOperations,
-      getTelegramStorage: storage.getTelegramStorage
+      getUnifiedStorage: unifiedStorage.getUnifiedStorage
     }
   } catch (e) {
-    return { getDBOperations: null, getTelegramStorage: null }
+    return { getDBOperations: null, getUnifiedStorage: null }
   }
 }
 
@@ -74,14 +74,16 @@ class VideoAPI {
     // Only initialize server-side modules when running on the server
     if (typeof window === 'undefined') {
       try {
-        const { getDBOperations, getTelegramStorage } = getServerModules()
-        if (getDBOperations && getTelegramStorage) {
+        const { getDBOperations, getUnifiedStorage } = getServerModules()
+        if (getDBOperations && getUnifiedStorage) {
           this.db = getDBOperations()
-          this.storage = getTelegramStorage()
+          this.storage = getUnifiedStorage()
+          // Initialize unified storage
+          this.storage.initialize().catch(console.warn)
         }
       } catch (e) {
         // Ignore if initialization fails
-        console.warn('Failed to initialize Telegram storage:', e)
+        console.warn('Failed to initialize unified storage:', e)
       }
     }
   }
@@ -90,10 +92,12 @@ class VideoAPI {
    * Convert VideoRecord to VideoMetadata
    */
   private convertToVideoMetadata(record: any, source: 'telegram' | 'tiktok' = 'tiktok'): VideoMetadata {
-    // If video is in Telegram, use Telegram file URL
+    // If video is in storage (Telegram or Streamtape), use storage file URL
     let videoUrl = record.videoUrl
-    if (record.telegramFileId && source === 'telegram' && this.storage) {
-      videoUrl = this.storage.getFileUrl(record.telegramFileId)
+    if (record.telegramFileId && this.storage) {
+      // UnifiedStorage handles both Telegram and Streamtape
+      const storageType = this.storage.getStorageType?.(record.telegramFileId)
+      videoUrl = this.storage.getFileUrl(record.telegramFileId, storageType)
     }
 
     return {
