@@ -8,6 +8,7 @@ import { SideMenu } from '@/components/Navigation/SideMenu'
 import { useState } from 'react'
 import { Menu } from 'lucide-react'
 import { UiverseIconButton } from '@/components/UI/UiverseIconButton'
+import { UiverseButton } from '@/components/UI/UiverseButton'
 import { LiquidGlass } from '@/components/UI/LiquidGlass'
 
 export default function Home() {
@@ -29,13 +30,23 @@ export default function Home() {
             </div>
             <div className="flex gap-4">
               <LiquidGlass preset="pulse" className="rounded-full">
-                <a href="/following" className="text-white font-semibold px-4 py-2 block">
+                <UiverseButton
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => window.location.href = '/following'}
+                  className="text-white font-semibold px-4 py-2"
+                >
                   Following
-                </a>
+                </UiverseButton>
               </LiquidGlass>
-              <a href="/" className="text-white/60 font-semibold hover:text-white transition-colors px-4 py-2">
+              <UiverseButton
+                variant="ghost"
+                size="sm"
+                onClick={() => window.location.href = '/'}
+                className="text-white/60 font-semibold hover:text-white px-4 py-2"
+              >
                 For You
-              </a>
+              </UiverseButton>
             </div>
           </header>
 

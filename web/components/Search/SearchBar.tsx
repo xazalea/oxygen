@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { UiverseInput } from '@/components/UI/UiverseInput'
 import { UiverseIconButton } from '@/components/UI/UiverseIconButton'
+import { UiverseButton } from '@/components/UI/UiverseButton'
 import { UiverseCard } from '@/components/UI/UiverseCard'
 
 interface SearchResult {
@@ -92,15 +93,15 @@ export function SearchBar() {
 
   return (
     <>
-      <motion.button
+      <UiverseButton
         onClick={() => setIsOpen(true)}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        className="flex items-center gap-3 px-4 py-2.5 rounded-full glass hover:glass-strong transition-all flex-1 max-w-md ripple-uiverse"
+        variant="ghost"
+        size="md"
+        className="flex items-center gap-3 px-4 py-2.5 rounded-full flex-1 max-w-md"
       >
         <SearchIcon className="w-4 h-4 text-white/70" />
         <span className="text-white/70 text-sm font-medium">Search</span>
-      </motion.button>
+      </UiverseButton>
 
       <AnimatePresence>
         {isOpen && (
@@ -149,23 +150,23 @@ export function SearchBar() {
                     ) : results.length > 0 ? (
                       <div className="space-y-2">
                         {results.map((result) => (
-                          <motion.button
+                          <UiverseButton
                             key={result.id}
                             onClick={() => handleResultClick(result)}
-                            whileHover={{ x: 5, scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className="w-full flex items-center gap-3 p-3 rounded-xl glass hover:glass-strong transition-all text-left ripple-uiverse"
+                            variant="ghost"
+                            size="lg"
+                            className="w-full flex items-center gap-3 p-3 justify-start h-auto"
                           >
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center text-white/80 border border-white/10">
                               {getIcon(result.type)}
                             </div>
-                            <div className="flex-1">
+                            <div className="flex-1 text-left">
                               <p className="text-white font-semibold">{result.title}</p>
                               {result.subtitle && (
                                 <p className="text-white/60 text-sm mt-0.5">{result.subtitle}</p>
                               )}
                             </div>
-                          </motion.button>
+                          </UiverseButton>
                         ))}
                       </div>
                     ) : (
@@ -182,22 +183,22 @@ export function SearchBar() {
                     <h3 className="text-white/60 text-sm font-semibold mb-3 px-2">Trending</h3>
                     <div className="space-y-2">
                       {['fyp', 'viral', 'trending', 'comedy', 'dance'].map((tag) => (
-                        <motion.button
+                        <UiverseButton
                           key={tag}
                           onClick={() => {
                             setQuery(`#${tag}`)
                             handleSearch(`#${tag}`)
                           }}
-                          whileHover={{ x: 5, scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          className="w-full flex items-center gap-3 p-3 rounded-xl glass hover:glass-strong transition-all text-left ripple-uiverse"
+                          variant="ghost"
+                          size="lg"
+                          className="w-full flex items-center gap-3 p-3 justify-start h-auto"
                         >
                           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
                             <TrendingUp className="w-5 h-5 text-indigo-400" />
                           </div>
                           <span className="text-white font-medium">#{tag}</span>
                           <span className="badge-uiverse ml-auto text-xs">Trending</span>
-                        </motion.button>
+                        </UiverseButton>
                       ))}
                     </div>
                   </div>

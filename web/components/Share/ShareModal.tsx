@@ -78,12 +78,12 @@ export function ShareModal({ video, isOpen, onClose }: ShareModalProps) {
               {shareOptions.map((option) => {
                 const Icon = option.icon
                 return (
-                  <motion.button
+                  <UiverseButton
                     key={option.action}
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
                     onClick={() => handleShare(option.action)}
-                    className="flex flex-col items-center gap-3 p-4 glass-strong rounded-xl hover:glass transition-all ripple-uiverse"
+                    variant="ghost"
+                    size="lg"
+                    className="flex flex-col items-center gap-3 p-4 h-auto"
                   >
                     <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center border border-white/10">
                       <Icon className="w-7 h-7 text-white" />
@@ -91,7 +91,7 @@ export function ShareModal({ video, isOpen, onClose }: ShareModalProps) {
                     <span className="text-white text-xs font-semibold text-center">
                       {option.label}
                     </span>
-                  </motion.button>
+                  </UiverseButton>
                 )
               })}
             </div>

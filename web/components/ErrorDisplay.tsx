@@ -44,12 +44,14 @@ export function ErrorDisplay({ message, onRetry }: ErrorDisplayProps) {
                 Try Again
               </UiverseButton>
             )}
-            <button
+            <UiverseButton
+              variant="ghost"
+              size="sm"
               onClick={() => window.location.reload()}
-              className="block w-full text-white/60 hover:text-white text-sm underline transition-colors"
+              className="w-full text-white/60 hover:text-white text-sm"
             >
               Reload Page
-            </button>
+            </UiverseButton>
           </motion.div>
         </UiverseCard>
       </LiquidGlass>

@@ -97,11 +97,11 @@ export default function ProfilePage() {
             const isActive = activeTab === tab.id
             return (
               <LiquidGlass key={tab.id} preset={isActive ? 'pulse' : 'frost'} className="rounded-full">
-                <motion.button
+                <UiverseButton
                   onClick={() => setActiveTab(tab.id)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center gap-2 px-4 py-3 relative ripple-uiverse"
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-2 px-4 py-3 relative"
                 >
                   {isActive && (
                     <motion.div
@@ -114,7 +114,7 @@ export default function ProfilePage() {
                   <span className={`font-semibold relative z-10 ${isActive ? 'text-white' : 'text-white/60'}`}>
                     {tab.label}
                   </span>
-                </motion.button>
+                </UiverseButton>
               </LiquidGlass>
             )
           })}

@@ -9,6 +9,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { TrendingUp, Hash, Music, Users } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { LiquidGlass } from '@/components/UI/LiquidGlass'
+import { UiverseButton } from '@/components/UI/UiverseButton'
 
 export default function DiscoverPage() {
   const [activeTab, setActiveTab] = useState<'trending' | 'hashtags' | 'users' | 'music'>('trending')
@@ -44,11 +45,11 @@ export default function DiscoverPage() {
                     preset={isActive ? 'pulse' : 'frost'}
                     className="rounded-full"
                   >
-                    <motion.button
+                    <UiverseButton
                       onClick={() => setActiveTab(tab.id)}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap relative ripple-uiverse"
+                      variant="ghost"
+                      size="sm"
+                      className="flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap relative"
                     >
                       {isActive && (
                         <motion.div
@@ -61,7 +62,7 @@ export default function DiscoverPage() {
                       <span className={`text-sm font-semibold relative z-10 ${isActive ? 'text-white' : 'text-white/60'}`}>
                         {tab.label}
                       </span>
-                    </motion.button>
+                    </UiverseButton>
                   </LiquidGlass>
                 )
               })}

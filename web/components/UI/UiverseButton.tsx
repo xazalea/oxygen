@@ -6,7 +6,7 @@ import { ReactNode } from 'react'
 interface UiverseButtonProps {
   children: ReactNode
   onClick?: () => void
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost'
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'icon' | 'outline'
   size?: 'sm' | 'md' | 'lg'
   disabled?: boolean
   className?: string
@@ -29,6 +29,8 @@ export function UiverseButton({
     secondary: 'bg-gradient-to-r from-purple-500 to-pink-500',
     danger: 'bg-gradient-to-r from-red-500 to-pink-500',
     ghost: 'bg-transparent border-2 border-white/20 hover:bg-white/10',
+    icon: 'bg-transparent border-none hover:bg-white/10 p-2',
+    outline: 'bg-transparent border-2 border-white/30 hover:border-white/50 hover:bg-white/5',
   }
   
   const sizeClasses = {

@@ -157,25 +157,38 @@ export function CommentsModal({ video, isOpen, onClose, commentCount }: Comments
                           </div>
                           <p className="text-white text-sm mb-3 leading-relaxed">{comment.text}</p>
                           <div className="flex items-center gap-4">
-                            <motion.button
+                            <UiverseIconButton
+                              icon={
+                                <div className="flex items-center gap-1.5">
+                                  <Heart
+                                    className={`w-4 h-4 transition-all ${comment.isLiked ? 'fill-red-500 text-red-500' : 'text-white/70'}`}
+                                  />
+                                  <span className="text-xs font-medium text-white/70">{comment.likes}</span>
+                                </div>
+                              }
                               onClick={() => handleLikeComment(comment.id)}
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              className="flex items-center gap-1.5 text-white/70 hover:text-red-400 transition-colors"
-                            >
-                              <Heart
-                                className={`w-4 h-4 transition-all ${comment.isLiked ? 'fill-red-500 text-red-500' : ''}`}
-                              />
-                              <span className="text-xs font-medium">{comment.likes}</span>
-                            </motion.button>
+                              size="sm"
+                              variant="ghost"
+                              className="p-0 h-auto"
+                            />
                             {comment.replies > 0 && (
-                              <button className="text-white/60 hover:text-white text-xs transition-colors font-medium">
+                              <UiverseButton
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {}}
+                                className="text-white/60 hover:text-white text-xs p-0 h-auto"
+                              >
                                 {comment.replies} replies
-                              </button>
+                              </UiverseButton>
                             )}
-                            <button className="text-white/60 hover:text-white text-xs transition-colors font-medium">
+                            <UiverseButton
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {}}
+                              className="text-white/60 hover:text-white text-xs p-0 h-auto"
+                            >
                               Reply
-                            </button>
+                            </UiverseButton>
                           </div>
                         </div>
                         <UiverseIconButton

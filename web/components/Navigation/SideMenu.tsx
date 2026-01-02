@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, User, Settings, Bookmark, HelpCircle, Shield, LogOut, Moon, Globe } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { UiverseIconButton } from '@/components/UI/UiverseIconButton'
+import { UiverseButton } from '@/components/UI/UiverseButton'
 import { UiverseCard } from '@/components/UI/UiverseCard'
 
 interface SideMenuProps {
@@ -62,7 +63,7 @@ export function SideMenu({ isOpen, onClose }: SideMenuProps) {
                   return (
                     <div key={index}>
                       {item.divider && <div className="h-px bg-white/10 my-2" />}
-                      <motion.button
+                      <UiverseButton
                         onClick={() => {
                           if (item.path) {
                             router.push(item.path)
@@ -72,9 +73,9 @@ export function SideMenu({ isOpen, onClose }: SideMenuProps) {
                             onClose()
                           }
                         }}
-                        whileHover={{ x: 5 }}
-                        whileTap={{ scale: 0.98 }}
-                        className={`w-full flex items-center gap-4 px-6 py-4 rounded-xl hover:bg-white/10 transition-all ripple-uiverse ${
+                        variant="ghost"
+                        size="lg"
+                        className={`w-full flex items-center gap-4 px-6 py-4 justify-start h-auto ${
                           item.danger ? 'text-red-400 hover:text-red-300' : 'text-white'
                         }`}
                       >
@@ -84,7 +85,7 @@ export function SideMenu({ isOpen, onClose }: SideMenuProps) {
                           <Icon className="w-5 h-5" />
                         </div>
                         <span className="font-medium">{item.label}</span>
-                      </motion.button>
+                      </UiverseButton>
                     </div>
                   )
                 })}

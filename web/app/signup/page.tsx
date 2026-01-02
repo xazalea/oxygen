@@ -76,13 +76,12 @@ export default function SignupPage() {
                 icon={<Lock className="w-5 h-5" />}
                 required
               />
-              <button
-                type="button"
+              <UiverseIconButton
+                icon={showPassword ? <EyeOff className="w-5 h-5 text-white" /> : <Eye className="w-5 h-5 text-white" />}
                 onClick={() => setShowPassword(!showPassword)}
-                className="icon-btn-uiverse absolute right-2 top-1/2 transform -translate-y-1/2"
-              >
-                {showPassword ? <EyeOff className="w-5 h-5 text-white" /> : <Eye className="w-5 h-5 text-white" />}
-              </button>
+                size="sm"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2"
+              />
             </div>
           </div>
 

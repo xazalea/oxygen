@@ -10,6 +10,7 @@ import { CommentsModal } from './Comments/CommentsModal'
 import { ShareModal } from './Share/ShareModal'
 import { DuetOptions } from './Duet/DuetOptions'
 import { UiverseIconButton } from './UI/UiverseIconButton'
+import { UiverseButton } from './UI/UiverseButton'
 import { LiquidGlass } from './UI/LiquidGlass'
 
 interface VideoPlayerProps {
@@ -101,17 +102,30 @@ export function VideoPlayer({ video, isActive, onInteraction, onWatchTime }: Vid
     return num.toString()
   }
 
+  // Get video source URL - use proxy for Telegram videos
+  const getVideoSrc = () => {
+    if (video.source === 'telegram' && video.videoUrl.includes('api.telegram.org')) {
+      // Extract file ID from Telegram URL or use proxy
+      const fileIdMatch = video.videoUrl.match(/file\/bot[\w:]+\/(.+)/)
+      if (fileIdMatch) {
+        return `/api/videos/proxy?fileId=${encodeURIComponent(fileIdMatch[1])}`
+      }
+    }
+    return video.videoUrl
+  }
+
   return (
     <div className="relative w-full h-full bg-black flex items-center justify-center">
       <video
         ref={videoRef}
-        src={video.videoUrl}
+        src={getVideoSrc()}
         className="w-full h-full object-contain"
         loop
         playsInline
         onTimeUpdate={handleTimeUpdate}
         onClick={showControlsTemporarily}
         onTouchStart={showControlsTemporarily}
+        crossOrigin="anonymous"
       />
 
       {/* Progress bar with gradient */}
@@ -344,21 +358,18 @@ export function VideoPlayer({ video, isActive, onInteraction, onWatchTime }: Vid
                 className="p-2 min-w-[100px]"
               >
                 {[0.5, 0.75, 1.0, 1.25, 1.5, 2.0].map((speed) => (
-                  <motion.button
+                  <UiverseButton
                     key={speed}
                     onClick={() => {
                       setPlaybackSpeed(speed)
                       setShowSpeedMenu(false)
                     }}
-                    whileHover={{ x: 3 }}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all ripple-uiverse ${
-                      playbackSpeed === speed
-                        ? 'bg-gradient-to-r from-indigo-500/30 to-purple-500/30 text-white font-semibold'
-                        : 'text-white/80 hover:bg-white/10'
-                    }`}
+                    variant={playbackSpeed === speed ? 'primary' : 'ghost'}
+                    size="sm"
+                    className="w-full justify-start text-xs"
                   >
                     {speed}x
-                  </motion.button>
+                  </UiverseButton>
                 ))}
               </motion.div>
             </LiquidGlass>

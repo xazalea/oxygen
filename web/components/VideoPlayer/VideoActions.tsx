@@ -5,6 +5,8 @@ import { motion } from 'framer-motion'
 import { Heart, MessageCircle, Share2, Bookmark, Flag, Download, MoreVertical, UserPlus, UserMinus, Scissors } from 'lucide-react'
 import { VideoMetadata } from '@/lib/video-api'
 import { UiverseIconButton } from '@/components/UI/UiverseIconButton'
+import { UiverseButton } from '@/components/UI/UiverseButton'
+import { LiquidGlass } from '@/components/UI/LiquidGlass'
 
 interface VideoActionsProps {
   video: VideoMetadata
@@ -67,21 +69,23 @@ export function VideoActions({
       )}
 
       {/* Like */}
-      <motion.button
-        whileTap={{ scale: 0.85 }}
-        whileHover={{ scale: 1.1 }}
-        onClick={onLike}
-        className="flex flex-col items-center gap-2 cursor-pointer"
-      >
-        <motion.div
-          animate={{ 
-            scale: isLiked ? [1, 1.4, 1.2] : 1,
-          }}
-          transition={{ duration: 0.3 }}
-          className={`icon-btn-uiverse ${isLiked ? 'bg-gradient-to-br from-red-500 to-pink-500 glow-uiverse' : 'bg-white/10 border-white/20'}`}
-        >
-          <Heart className={`w-6 h-6 ${isLiked ? 'fill-white text-white' : 'text-white'}`} />
-        </motion.div>
+      <div className="flex flex-col items-center gap-2">
+        <UiverseIconButton
+          icon={
+            <motion.div
+              animate={{ 
+                scale: isLiked ? [1, 1.4, 1.2] : 1,
+              }}
+              transition={{ duration: 0.3 }}
+            >
+              <Heart className={`w-6 h-6 ${isLiked ? 'fill-white text-white' : 'text-white'}`} />
+            </motion.div>
+          }
+          onClick={onLike}
+          variant={isLiked ? 'danger' : 'default'}
+          size="md"
+          className={isLiked ? 'bg-gradient-to-br from-red-500 to-pink-500 glow-uiverse' : ''}
+        />
         <motion.span 
           className="text-xs font-semibold text-white drop-shadow-lg"
           animate={{ scale: isLiked ? [1, 1.2, 1] : 1 }}
@@ -89,49 +93,40 @@ export function VideoActions({
         >
           {formatNumber(video.stats.likes + (isLiked ? 1 : 0))}
         </motion.span>
-      </motion.button>
+      </div>
 
       {/* Comment */}
-      <motion.button
-        whileTap={{ scale: 0.85 }}
-        whileHover={{ scale: 1.1 }}
-        onClick={onComment}
-        className="flex flex-col items-center gap-2 cursor-pointer"
-      >
-        <div className="icon-btn-uiverse">
-          <MessageCircle className="w-6 h-6 text-white" />
-        </div>
+      <div className="flex flex-col items-center gap-2">
+        <UiverseIconButton
+          icon={<MessageCircle className="w-6 h-6 text-white" />}
+          onClick={onComment}
+          size="md"
+        />
         <span className="text-xs font-semibold text-white drop-shadow-lg">
           {formatNumber(video.stats.comments)}
         </span>
-      </motion.button>
+      </div>
 
       {/* Share */}
-      <motion.button
-        whileTap={{ scale: 0.85 }}
-        whileHover={{ scale: 1.1 }}
-        onClick={onShare}
-        className="flex flex-col items-center gap-2 cursor-pointer"
-      >
-        <div className="icon-btn-uiverse">
-          <Share2 className="w-6 h-6 text-white" />
-        </div>
+      <div className="flex flex-col items-center gap-2">
+        <UiverseIconButton
+          icon={<Share2 className="w-6 h-6 text-white" />}
+          onClick={onShare}
+          size="md"
+        />
         <span className="text-xs font-semibold text-white drop-shadow-lg">
           {formatNumber(video.stats.shares)}
         </span>
-      </motion.button>
+      </div>
 
       {/* Save/Bookmark */}
-      <motion.button
-        whileTap={{ scale: 0.85 }}
-        whileHover={{ scale: 1.1 }}
+      <UiverseIconButton
+        icon={<Bookmark className={`w-6 h-6 ${isSaved ? 'fill-white text-white' : 'text-white'}`} />}
         onClick={handleSave}
-        className="flex flex-col items-center gap-2 cursor-pointer"
-      >
-        <div className={`icon-btn-uiverse ${isSaved ? 'bg-gradient-to-br from-indigo-500 to-purple-500' : ''}`}>
-          <Bookmark className={`w-6 h-6 ${isSaved ? 'fill-white text-white' : 'text-white'}`} />
-        </div>
-      </motion.button>
+        variant={isSaved ? 'primary' : 'default'}
+        size="md"
+        className={isSaved ? 'bg-gradient-to-br from-indigo-500 to-purple-500' : ''}
+      />
 
       {/* Duet/Stitch */}
       {onDuet && (
@@ -151,39 +146,44 @@ export function VideoActions({
         />
 
         {showMoreMenu && (
-          <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute bottom-16 right-0 glass-strong rounded-xl p-2 min-w-[160px] shadow-2xl"
-          >
-            <motion.button
+          <LiquidGlass preset="pulse" className="absolute bottom-16 right-0 rounded-xl p-2 min-w-[160px] shadow-2xl">
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+              className="space-y-1"
+            >
+            <UiverseButton
               onClick={handleDownload}
-              whileHover={{ x: 3 }}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-white hover:bg-white/10 transition-all ripple-uiverse"
+              variant="ghost"
+              size="sm"
+              className="w-full flex items-center gap-3 justify-start text-white"
             >
               <Download className="w-4 h-4" />
               Download
-            </motion.button>
+            </UiverseButton>
             {onDuet && (
-              <motion.button
+              <UiverseButton
                 onClick={onDuet}
-                whileHover={{ x: 3 }}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-white hover:bg-white/10 transition-all ripple-uiverse"
+                variant="ghost"
+                size="sm"
+                className="w-full flex items-center gap-3 justify-start text-white"
               >
                 <Scissors className="w-4 h-4" />
                 Duet/Stitch
-              </motion.button>
+              </UiverseButton>
             )}
-            <motion.button
+            <UiverseButton
               onClick={handleReport}
-              whileHover={{ x: 3 }}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-red-400 hover:bg-red-500/10 transition-all ripple-uiverse"
+              variant="ghost"
+              size="sm"
+              className="w-full flex items-center gap-3 justify-start text-red-400 hover:text-red-300"
             >
               <Flag className="w-4 h-4" />
               Report
-            </motion.button>
-          </motion.div>
+            </UiverseButton>
+            </motion.div>
+          </LiquidGlass>
         )}
       </div>
     </div>

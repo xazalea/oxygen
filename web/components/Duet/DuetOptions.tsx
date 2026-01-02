@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, Video, Users } from 'lucide-react'
 import { VideoMetadata } from '@/lib/video-api'
 import { UiverseIconButton } from '@/components/UI/UiverseIconButton'
+import { UiverseButton } from '@/components/UI/UiverseButton'
 import { UiverseCard } from '@/components/UI/UiverseCard'
 import { LiquidGlass } from '@/components/UI/LiquidGlass'
 
@@ -43,10 +44,10 @@ export function DuetOptions({ video, isOpen, onClose }: DuetOptionsProps) {
 
             <div className="space-y-3">
               <LiquidGlass preset="edge" className="rounded-xl">
-                <motion.button
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full flex items-center gap-4 p-4 ripple-uiverse"
+                <UiverseButton
+                  variant="ghost"
+                  size="lg"
+                  className="w-full flex items-center gap-4 p-4 justify-start h-auto"
                 >
                   <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500/30 to-purple-500/30 flex items-center justify-center border border-white/10">
                     <Video className="w-7 h-7 text-white" />
@@ -55,14 +56,14 @@ export function DuetOptions({ video, isOpen, onClose }: DuetOptionsProps) {
                     <p className="text-white font-semibold text-base">Duet</p>
                     <p className="text-white/70 text-sm mt-0.5">Create a video alongside this one</p>
                   </div>
-                </motion.button>
+                </UiverseButton>
               </LiquidGlass>
 
               <LiquidGlass preset="edge" className="rounded-xl">
-                <motion.button
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full flex items-center gap-4 p-4 ripple-uiverse"
+                <UiverseButton
+                  variant="ghost"
+                  size="lg"
+                  className="w-full flex items-center gap-4 p-4 justify-start h-auto"
                 >
                   <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500/30 to-purple-500/30 flex items-center justify-center border border-white/10">
                     <Users className="w-7 h-7 text-white" />
@@ -71,7 +72,7 @@ export function DuetOptions({ video, isOpen, onClose }: DuetOptionsProps) {
                     <p className="text-white font-semibold text-base">Stitch</p>
                     <p className="text-white/70 text-sm mt-0.5">Combine clips from this video with yours</p>
                   </div>
-                </motion.button>
+                </UiverseButton>
               </LiquidGlass>
             </div>
           </motion.div>

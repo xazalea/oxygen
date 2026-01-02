@@ -72,28 +72,28 @@ export default function CreatePage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <LiquidGlass preset="edge" className="rounded-xl">
-                  <motion.button
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="flex flex-col items-center gap-3 p-6 ripple-uiverse w-full"
+                  <UiverseButton
+                    variant="ghost"
+                    size="lg"
+                    className="flex flex-col items-center gap-3 p-6 w-full h-auto"
                   >
                     <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500/30 to-purple-500/30 flex items-center justify-center border border-white/10">
                       <Camera className="w-8 h-8 text-white" />
                     </div>
                     <span className="text-white text-sm font-semibold">Record</span>
-                  </motion.button>
+                  </UiverseButton>
                 </LiquidGlass>
                 <LiquidGlass preset="edge" className="rounded-xl">
-                  <motion.button
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="flex flex-col items-center gap-3 p-6 ripple-uiverse w-full"
+                  <UiverseButton
+                    variant="ghost"
+                    size="lg"
+                    className="flex flex-col items-center gap-3 p-6 w-full h-auto"
                   >
                     <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500/30 to-purple-500/30 flex items-center justify-center border border-white/10">
                       <Music className="w-8 h-8 text-white" />
                     </div>
                     <span className="text-white text-sm font-semibold">Add Sound</span>
-                  </motion.button>
+                  </UiverseButton>
                 </LiquidGlass>
               </div>
             </div>

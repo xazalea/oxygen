@@ -13,7 +13,6 @@ import { UiverseButton } from '@/components/UI/UiverseButton'
 import { UiverseIconButton } from '@/components/UI/UiverseIconButton'
 import { LiquidGlass } from '@/components/UI/LiquidGlass'
 import { UiverseCard } from '@/components/UI/UiverseCard'
-import { motion } from 'framer-motion'
 
 export default function UserPage() {
   const params = useParams()
@@ -109,30 +108,30 @@ export default function UserPage() {
             {/* Tabs */}
             <div className="flex gap-3">
               <LiquidGlass preset={activeTab === 'videos' ? 'pulse' : 'frost'} className="rounded-full">
-                <motion.button
+                <UiverseButton
                   onClick={() => setActiveTab('videos')}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full ripple-uiverse"
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-2 px-4 py-2 rounded-full"
                 >
                   <Grid className={`w-4 h-4 ${activeTab === 'videos' ? 'text-white' : 'text-white/60'}`} />
                   <span className={`text-sm font-semibold ${activeTab === 'videos' ? 'text-white' : 'text-white/60'}`}>
                     Videos
                   </span>
-                </motion.button>
+                </UiverseButton>
               </LiquidGlass>
               <LiquidGlass preset={activeTab === 'liked' ? 'pulse' : 'frost'} className="rounded-full">
-                <motion.button
+                <UiverseButton
                   onClick={() => setActiveTab('liked')}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full ripple-uiverse"
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-2 px-4 py-2 rounded-full"
                 >
                   <Heart className={`w-4 h-4 ${activeTab === 'liked' ? 'text-white' : 'text-white/60'}`} />
                   <span className={`text-sm font-semibold ${activeTab === 'liked' ? 'text-white' : 'text-white/60'}`}>
                     Liked
                   </span>
-                </motion.button>
+                </UiverseButton>
               </LiquidGlass>
             </div>
           </div>

@@ -101,3 +101,11 @@ export async function getVideoById(videoId: string): Promise<TikTokVideo | null>
   }
 }
 
+// Helper function for compatibility
+export function getTikTokService() {
+  return {
+    getTrendingVideos,
+    getVideoById
+  }
+}
+

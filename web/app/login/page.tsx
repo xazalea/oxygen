@@ -44,12 +44,12 @@ export default function LoginPage() {
             <label className="block text-white/80 text-sm mb-3 font-medium">Email or username</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50 z-10" />
-              <input
+              <UiverseInput
                 type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email or username"
-                className="input-uiverse w-full pl-12 pr-4"
+                icon={<Mail className="w-5 h-5" />}
                 required
               />
             </div>
@@ -59,12 +59,12 @@ export default function LoginPage() {
             <label className="block text-white/80 text-sm mb-3 font-medium">Password</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50 z-10" />
-              <input
+              <UiverseInput
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
-                className="input-uiverse w-full pl-12 pr-12"
+                icon={<Lock className="w-5 h-5" />}
                 required
               />
               <UiverseIconButton
@@ -76,10 +76,10 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <button
+          <UiverseButton
             type="submit"
             disabled={isLoading}
-            className="btn-uiverse w-full ripple-uiverse disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full"
           >
             {isLoading ? (
               <span className="flex items-center justify-center gap-2">
@@ -89,22 +89,29 @@ export default function LoginPage() {
             ) : (
               'Sign in'
             )}
-          </button>
+          </UiverseButton>
         </form>
 
         <div className="mt-8 text-center">
           <p className="text-white/70 text-sm mb-4">
             Don't have an account?{' '}
-            <button
+            <UiverseButton
+              variant="ghost"
+              size="sm"
               onClick={() => router.push('/signup')}
-              className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 hover:from-indigo-300 hover:to-purple-300 font-semibold transition-all"
+              className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 hover:from-indigo-300 hover:to-purple-300 font-semibold inline p-0 h-auto"
             >
               Sign up
-            </button>
+            </UiverseButton>
           </p>
-          <button className="text-white/60 text-sm hover:text-white/90 transition-colors underline decoration-white/30 hover:decoration-white/60">
+          <UiverseButton
+            variant="ghost"
+            size="sm"
+            onClick={() => {}}
+            className="text-white/60 text-sm hover:text-white/90 underline decoration-white/30 hover:decoration-white/60 p-0 h-auto"
+          >
             Forgot password?
-          </button>
+          </UiverseButton>
         </div>
       </motion.div>
     </div>

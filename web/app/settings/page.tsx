@@ -5,6 +5,8 @@ import { ArrowLeft, User, Bell, Shield, Moon, Globe, HelpCircle, LogOut } from '
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { UiverseIconButton } from '@/components/UI/UiverseIconButton'
+import { UiverseButton } from '@/components/UI/UiverseButton'
+import { UiverseCard } from '@/components/UI/UiverseCard'
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -57,31 +59,32 @@ export default function SettingsPage() {
               {group.items.map((item, itemIndex) => {
                 const Icon = item.icon
                 return (
-                  <motion.button
-                    key={itemIndex}
-                    whileHover={{ x: 5, scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => {
-                      if (item.path) {
-                        router.push(item.path)
-                      } else if (item.toggle) {
-                        // Toggle logic
-                      }
-                    }}
-                    className={`w-full flex items-center gap-4 px-4 py-4 rounded-xl glass hover:glass-strong transition-all ripple-uiverse ${
-                      item.danger ? 'text-red-400 hover:text-red-300' : 'text-white'
-                    }`}
-                  >
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                      item.danger ? 'bg-red-500/20' : 'bg-white/10'
-                    }`}>
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <span className="font-semibold flex-1 text-left">{item.label}</span>
-                    {item.toggle && (
-                      <div className="toggle-uiverse active"></div>
-                    )}
-                  </motion.button>
+                  <UiverseCard key={itemIndex} className="p-0 overflow-hidden">
+                    <UiverseButton
+                      onClick={() => {
+                        if (item.path) {
+                          router.push(item.path)
+                        } else if (item.toggle) {
+                          // Toggle logic
+                        }
+                      }}
+                      variant="ghost"
+                      size="lg"
+                      className={`w-full flex items-center gap-4 px-4 py-4 justify-start ${
+                        item.danger ? 'text-red-400 hover:text-red-300' : 'text-white'
+                      }`}
+                    >
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                        item.danger ? 'bg-red-500/20' : 'bg-white/10'
+                      }`}>
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <span className="font-semibold flex-1 text-left">{item.label}</span>
+                      {item.toggle && (
+                        <div className="toggle-uiverse active"></div>
+                      )}
+                    </UiverseButton>
+                  </UiverseCard>
                 )
               })}
             </div>
