@@ -45,9 +45,10 @@ export function TextPost({ post, onLike, onComment, onShare, onRepost }: TextPos
             {new Date(post.createdAt).toLocaleDateString()}
           </p>
         </div>
-        <UiverseIconButton>
-          <MoreVertical className="w-5 h-5" />
-        </UiverseIconButton>
+        <UiverseIconButton
+          icon={<MoreVertical className="w-5 h-5" />}
+          size="sm"
+        />
       </div>
 
       {/* Content */}
