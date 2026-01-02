@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { UiverseButton } from '@/components/UI/UiverseButton'
 import { UiverseInput } from '@/components/UI/UiverseInput'
+import { UiverseIconButton } from '@/components/UI/UiverseIconButton'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('')
