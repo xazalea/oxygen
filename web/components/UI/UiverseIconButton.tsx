@@ -8,7 +8,7 @@ interface UiverseIconButtonProps {
   onClick?: () => void
   className?: string
   size?: 'sm' | 'md' | 'lg'
-  variant?: 'default' | 'primary' | 'danger'
+  variant?: 'default' | 'primary' | 'danger' | 'ghost'
 }
 
 export function UiverseIconButton({
@@ -28,6 +28,7 @@ export function UiverseIconButton({
     default: 'bg-white/10 border-white/20',
     primary: 'bg-gradient-to-br from-indigo-500 to-purple-500 border-transparent',
     danger: 'bg-gradient-to-br from-red-500 to-pink-500 border-transparent',
+    ghost: 'bg-transparent border-none hover:bg-white/5',
   }
 
   return (
