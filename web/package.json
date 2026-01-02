@@ -1,1 +1,52 @@
-
+{
+  "name": "oxygen-web",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.2.2",
+    "pyodide": "^0.24.1",
+    "framer-motion": "^10.16.4",
+    "zustand": "^4.4.6",
+    "axios": "^1.6.0",
+    "lucide-react": "^0.294.0",
+    "tiktok-scraper": "^1.4.35",
+    "node-telegram-bot-api": "^0.64.0",
+    "grammy": "^1.20.0",
+    "@tensorflow/tfjs": "^4.15.0",
+    "@mediapipe/face_mesh": "^0.4.1635427367",
+    "react-quill": "^2.0.0",
+    "react-grid-layout": "^1.4.4",
+    "socket.io-client": "^4.7.2",
+    "react-webcam": "^7.2.0",
+    "fabric": "^5.3.0",
+    "konva": "^9.2.3",
+    "react-konva": "^18.2.10",
+    "@ffmpeg/ffmpeg": "^0.12.6",
+    "@ffmpeg/util": "^0.12.1",
+    "pako": "^2.1.0",
+    "onnxruntime-web": "^1.16.2",
+    "html2canvas": "^1.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.9.0",
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.5",
+    "eslint": "^8.53.0",
+    "eslint-config-next": "^14.0.0"
+  }
+}
