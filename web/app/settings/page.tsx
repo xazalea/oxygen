@@ -1,17 +1,26 @@
 'use client'
 
 import { BottomNav } from '@/components/Navigation/BottomNav'
-import { ArrowLeft, User, Bell, Shield, Moon, Globe, HelpCircle, LogOut } from 'lucide-react'
+import { ArrowLeft, User, Bell, Shield, Moon, Globe, HelpCircle, LogOut, LucideIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { UiverseIconButton } from '@/components/UI/UiverseIconButton'
 import { UiverseButton } from '@/components/UI/UiverseButton'
 import { UiverseCard } from '@/components/UI/UiverseCard'
 
+type SettingsItem = 
+  | { icon: LucideIcon; label: string; path: string; toggle?: never; danger?: boolean }
+  | { icon: LucideIcon; label: string; path: null; toggle: boolean; danger?: never }
+
+type SettingsGroup = {
+  title: string
+  items: SettingsItem[]
+}
+
 export default function SettingsPage() {
   const router = useRouter()
 
-  const settingsGroups = [
+  const settingsGroups: SettingsGroup[] = [
     {
       title: 'Account',
       items: [
@@ -64,7 +73,7 @@ export default function SettingsPage() {
                       onClick={() => {
                         if (item.path) {
                           router.push(item.path)
-                        } else if (item.toggle) {
+                        } else if ('toggle' in item && item.toggle) {
                           // Toggle logic
                         }
                       }}
@@ -80,7 +89,7 @@ export default function SettingsPage() {
                         <Icon className="w-5 h-5" />
                       </div>
                       <span className="font-semibold flex-1 text-left">{item.label}</span>
-                      {item.toggle && (
+                      {'toggle' in item && item.toggle && (
                         <div className="toggle-uiverse active"></div>
                       )}
                     </UiverseButton>
