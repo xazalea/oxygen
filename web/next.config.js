@@ -2,9 +2,6 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  experimental: {
-    serverActions: true,
-  },
   webpack: (config, { isServer }) => {
     // Handle Pyodide and Node.js modules
     if (!isServer) {

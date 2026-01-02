@@ -32,8 +32,11 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Convert Buffer to Uint8Array for NextResponse (Buffer extends Uint8Array)
+    const uint8Array = new Uint8Array(buffer)
+    
     // Return file with appropriate headers
-    return new NextResponse(buffer, {
+    return new NextResponse(uint8Array, {
       headers: {
         'Content-Type': 'video/mp4',
         'Content-Length': buffer.length.toString(),

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { BottomNav } from '@/components/Navigation/BottomNav'
-import { Upload, Camera, Music, Effects, X } from 'lucide-react'
+import { Upload, Camera, Music, Sparkles, X } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { UiverseButton } from '@/components/UI/UiverseButton'
 import { UiverseInput } from '@/components/UI/UiverseInput'
@@ -121,7 +121,7 @@ export default function CreatePage() {
                   size="md"
                   className="flex-1 flex items-center justify-center gap-2"
                 >
-                  <Effects className="w-5 h-5" />
+                  <Sparkles className="w-5 h-5" />
                   Effects
                 </UiverseButton>
                 <UiverseButton

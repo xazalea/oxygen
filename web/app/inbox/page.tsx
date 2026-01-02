@@ -1,7 +1,7 @@
 'use client'
 
 import { BottomNav } from '@/components/Navigation/BottomNav'
-import { Bell, MessageCircle, UserPlus, Heart, Comment } from 'lucide-react'
+import { Bell, MessageCircle, UserPlus, Heart, MessageSquare } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { UiverseCard } from '@/components/UI/UiverseCard'
 import { LiquidGlass } from '@/components/UI/LiquidGlass'
@@ -52,7 +52,7 @@ export default function InboxPage() {
       case 'like':
         return <Heart className="w-5 h-5 text-red-500" />
       case 'comment':
-        return <Comment className="w-5 h-5 text-blue-500" />
+        return <MessageSquare className="w-5 h-5 text-blue-500" />
       case 'follow':
         return <UserPlus className="w-5 h-5 text-green-500" />
       default:
