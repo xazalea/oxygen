@@ -71,7 +71,7 @@ export function UiverseModal({ isOpen, onClose, title, children, size = 'md' }: 
               {title && (
                 <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h2>
-                  <UiverseIconButton onClick={onClose} icon={X} />
+                  <UiverseIconButton onClick={onClose} icon={<X className="w-5 h-5" />} />
                 </div>
               )}
               <div className="p-6">{children}</div>
