@@ -32,32 +32,39 @@ const nextConfig = {
         '@cypress/request': 'commonjs @cypress/request',
       });
 
-      // Fix for onnxruntime-web trying to load node version
-      // We manually construct the path to ort.min.js assuming standard node_modules structure
-      // This is a fallback if require.resolve fails or exports are not defined
-      const onnxWebPath = path.join(process.cwd(), 'node_modules', 'onnxruntime-web', 'dist', 'ort.min.js');
-      
-      // Also try to find it in nested node_modules if not in root
-      let finalOnnxPath = onnxWebPath;
-      try {
-          if (!fs.existsSync(onnxWebPath)) {
-              // try to find via require.resolve but pointing to package.json then resolving dist
-              const pkgPath = require.resolve('onnxruntime-web/package.json');
-              finalOnnxPath = path.join(path.dirname(pkgPath), 'dist', 'ort.min.js');
-          }
-      } catch (e) {
-          console.warn('Could not resolve onnxruntime-web path via package.json', e);
-      }
-
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        'onnxruntime-web': finalOnnxPath,
-      };
-
-      // Force resolution to the browser bundle
+      // Force resolution to the browser bundle via NormalModuleReplacementPlugin
+      // This is often more reliable than resolve.alias for bypassing exports
       const webpack = require('webpack');
       
-      // Ignore the node build completely
+      // We know where the file *should* be in a standard install
+      // Constructing the relative path from the import location to the dist file
+      // is tricky without knowing the importer's location.
+      // So we use absolute pathing but hope the plugin handles it.
+      
+      // NEW STRATEGY:
+      // Instead of relying on require.resolve which checks exports,
+      // or alias which checks exports,
+      // We use NormalModuleReplacementPlugin to rewrite the REQUEST itself.
+      // But to avoid the exports check on the rewritten request, we target the file directly via absolute path?
+      // No, that still triggers checks in webpack resolution.
+      
+      // We will define an ALIAS for a completely different name, and point that to the absolute path,
+      // then replace imports of 'onnxruntime-web' with that alias.
+      
+      const onnxWebDist = path.join(process.cwd(), 'node_modules', 'onnxruntime-web', 'dist', 'ort.min.js');
+      
+      // Define a custom alias that maps to the file directly
+      config.resolve.alias['__onnxruntime_web_custom__'] = onnxWebDist;
+      
+      // Rewrite all imports of 'onnxruntime-web' to use our custom alias
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /^onnxruntime-web$/, 
+          '__onnxruntime_web_custom__'
+        )
+      );
+      
+      // And still ignore the node file just in case
       config.plugins.push(
         new webpack.IgnorePlugin({
           resourceRegExp: /ort\.node\.min\.mjs|ort\.node\.min\.js/,
