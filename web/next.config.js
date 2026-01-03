@@ -32,11 +32,16 @@ const nextConfig = {
       });
 
       // Fix for onnxruntime-web trying to load node version
-      // We explicitly alias to the browser build to avoid webpack picking up the node build
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        'onnxruntime-web': path.join(__dirname, 'node_modules/onnxruntime-web/dist/ort.min.js'),
-      };
+      // We use require.resolve to find the exact path to the browser-compatible script
+      try {
+        const onnxWebPath = require.resolve('onnxruntime-web/dist/ort.min.js');
+        config.resolve.alias = {
+          ...config.resolve.alias,
+          'onnxruntime-web': onnxWebPath,
+        };
+      } catch (e) {
+        console.warn('Could not resolve onnxruntime-web/dist/ort.min.js', e);
+      }
     }
     return config;
   },
