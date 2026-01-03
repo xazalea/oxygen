@@ -32,27 +32,34 @@ const nextConfig = {
         '@cypress/request': 'commonjs @cypress/request',
       });
 
-      // Fix for onnxruntime-web trying to load node version
-      // We manually construct the path to ort.min.js assuming standard node_modules structure
-      // This is a fallback if require.resolve fails or exports are not defined
-      const onnxWebPath = path.join(process.cwd(), 'node_modules', 'onnxruntime-web', 'dist', 'ort.min.js');
+      // Fix for onnxruntime-web:
+      // Copy the worker files to public directory during build if they don't exist
+      // This is a common pattern for onnxruntime-web usage with Next.js
+      const CopyPlugin = require('copy-webpack-plugin');
       
-      // Also try to find it in nested node_modules if not in root
-      let finalOnnxPath = onnxWebPath;
-      try {
-          if (!fs.existsSync(onnxWebPath)) {
-              // try to find via require.resolve but pointing to package.json then resolving dist
-              const pkgPath = require.resolve('onnxruntime-web/package.json');
-              finalOnnxPath = path.join(path.dirname(pkgPath), 'dist', 'ort.min.js');
-          }
-      } catch (e) {
-          console.warn('Could not resolve onnxruntime-web path via package.json', e);
-      }
+      config.plugins.push(
+        new CopyPlugin({
+          patterns: [
+            {
+              from: 'node_modules/onnxruntime-web/dist/*.wasm',
+              to: 'static/chunks/pages/[name][ext]',
+            },
+          ],
+        })
+      );
 
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        'onnxruntime-web': finalOnnxPath,
-      };
+      // Force resolution to the browser bundle
+      // Instead of alias, we use NormalModuleReplacementPlugin to swap the request
+      // This often works better when alias fails due to exports
+      const webpack = require('webpack');
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /^onnxruntime-web$/, 
+          (resource) => {
+              resource.request = 'onnxruntime-web/dist/ort.min.js';
+          }
+        )
+      );
     }
     return config;
   },
