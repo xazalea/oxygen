@@ -32,23 +32,37 @@ const nextConfig = {
         '@cypress/request': 'commonjs @cypress/request',
       });
 
+      // Fix for onnxruntime-web trying to load node version
+      // We manually construct the path to ort.min.js assuming standard node_modules structure
+      // This is a fallback if require.resolve fails or exports are not defined
+      const onnxWebPath = path.join(process.cwd(), 'node_modules', 'onnxruntime-web', 'dist', 'ort.min.js');
+      
+      // Also try to find it in nested node_modules if not in root
+      let finalOnnxPath = onnxWebPath;
+      try {
+          if (!fs.existsSync(onnxWebPath)) {
+              // try to find via require.resolve but pointing to package.json then resolving dist
+              const pkgPath = require.resolve('onnxruntime-web/package.json');
+              finalOnnxPath = path.join(path.dirname(pkgPath), 'dist', 'ort.min.js');
+          }
+      } catch (e) {
+          console.warn('Could not resolve onnxruntime-web path via package.json', e);
+      }
+
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'onnxruntime-web': finalOnnxPath,
+      };
+
       // Force resolution to the browser bundle
       const webpack = require('webpack');
       
       // Ignore the node build completely
       config.plugins.push(
         new webpack.IgnorePlugin({
-          resourceRegExp: /ort\.node\.min\.mjs/,
+          resourceRegExp: /ort\.node\.min\.mjs|ort\.node\.min\.js/,
         })
       );
-      
-      // Manually alias via resolve.alias again, but using a relative path trick
-      // that sometimes bypasses exports checks in newer webpack versions
-      // combined with NormalModuleReplacementPlugin for safety
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        'onnxruntime-web': require.resolve('onnxruntime-web/dist/ort.min.js'),
-      };
     }
     return config;
   },
