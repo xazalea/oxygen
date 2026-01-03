@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
@@ -30,9 +32,10 @@ const nextConfig = {
       });
 
       // Fix for onnxruntime-web trying to load node version
+      // We explicitly alias to the browser build to avoid webpack picking up the node build
       config.resolve.alias = {
         ...config.resolve.alias,
-        'onnxruntime-web': 'onnxruntime-web/dist/ort.min.js',
+        'onnxruntime-web': path.join(__dirname, 'node_modules/onnxruntime-web/dist/ort.min.js'),
       };
     }
     return config;
