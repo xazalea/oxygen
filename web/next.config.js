@@ -34,27 +34,21 @@ const nextConfig = {
 
       // Force resolution to the browser bundle
       const webpack = require('webpack');
+      
+      // Ignore the node build completely
       config.plugins.push(
-        new webpack.NormalModuleReplacementPlugin(
-          /^onnxruntime-web$/, 
-          (resource) => {
-              resource.request = 'onnxruntime-web/dist/ort.min.js';
-          }
-        )
+        new webpack.IgnorePlugin({
+          resourceRegExp: /ort\.node\.min\.mjs/,
+        })
       );
       
-      // Explicitly ignore the node-specific file causing syntax errors
-      // Use a more aggressive ignore strategy that covers different path formats
-      config.plugins.push(
-          new webpack.IgnorePlugin({
-              resourceRegExp: /ort\.node\.min\.mjs|ort\.node\.min\.js/,
-          })
-      );
-
-      // Also mark it as an external to be extra safe
-      config.externals.push({
-        'onnxruntime-web/dist/ort-node.min.js': 'commonjs onnxruntime-web/dist/ort-node.min.js',
-      });
+      // Manually alias via resolve.alias again, but using a relative path trick
+      // that sometimes bypasses exports checks in newer webpack versions
+      // combined with NormalModuleReplacementPlugin for safety
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'onnxruntime-web': require.resolve('onnxruntime-web/dist/ort.min.js'),
+      };
     }
     return config;
   },
