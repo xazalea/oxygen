@@ -39,9 +39,20 @@ const nextConfig = {
         new webpack.NormalModuleReplacementPlugin(
           /^onnxruntime-web$/, 
           (resource) => {
-              resource.request = 'onnxruntime-web/dist/ort.min.js';
+              // Only replace if it's a direct import of the package root
+              if (resource.request === 'onnxruntime-web') {
+                  resource.request = 'onnxruntime-web/dist/ort.min.js';
+              }
           }
         )
+      );
+      
+      // Also ignore the node-specific file that causes the syntax error
+      // This prevents webpack from even trying to parse it
+      config.plugins.push(
+          new webpack.IgnorePlugin({
+              resourceRegExp: /ort\.node\.min\.mjs$/,
+          })
       );
     }
     return config;
