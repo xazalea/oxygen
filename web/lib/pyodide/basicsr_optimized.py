@@ -112,3 +112,4 @@ optimized_basicsr = OptimizedBasicSR()
 # Initialize
 optimized_basicsr.load_model('ecbsr')
 
+

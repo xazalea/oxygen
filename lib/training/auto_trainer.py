@@ -296,3 +296,4 @@ class RealTimeTrainingService:
         """Get training statistics."""
         return self.auto_trainer.stats
 
+

@@ -255,3 +255,4 @@ export function getDBIndex(): TelegramDBIndex {
   return new TelegramDBIndex(db, storage)
 }
 
+

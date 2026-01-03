@@ -28,10 +28,15 @@ const nextConfig = {
         'tunnel-agent': 'commonjs tunnel-agent',
         '@cypress/request': 'commonjs @cypress/request',
       });
+
+      // Fix for onnxruntime-web trying to load node version
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'onnxruntime-web': 'onnxruntime-web/dist/ort.min.js',
+      };
     }
     return config;
   },
 };
 
 module.exports = nextConfig;
-

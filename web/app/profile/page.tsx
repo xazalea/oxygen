@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { BottomNav } from '@/components/Navigation/BottomNav'
 import { SideMenu } from '@/components/Navigation/SideMenu'
 import { Settings, Edit, Grid, Heart, Bookmark } from 'lucide-react'
@@ -14,7 +13,6 @@ import { UiverseCard } from '@/components/UI/UiverseCard'
 import { WalletDisplay } from '@/components/Currency/WalletDisplay'
 import { PortfolioView } from '@/components/Investing/PortfolioView'
 import { UiverseTabs } from '@/components/UI/UiverseComponents'
-import { useState, useEffect } from 'react'
 
 export default function ProfilePage() {
   const [showMenu, setShowMenu] = useState(false)

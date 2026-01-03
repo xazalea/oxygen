@@ -173,3 +173,4 @@ export function CameraCapture({ onCapture, onClose }: CameraCaptureProps) {
   )
 }
 
+

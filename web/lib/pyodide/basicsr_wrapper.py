@@ -197,3 +197,4 @@ basicsr_wrapper = BasicSRWrapper()
 # Initialize on import
 basicsr_wrapper.init()
 
+

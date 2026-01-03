@@ -337,3 +337,4 @@ class PerformanceOptimizer:
             "cache_size": len(self.embedding_cache.cache)
         }
 
+

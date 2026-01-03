@@ -75,3 +75,4 @@ class MultiObjectiveRanker:
         
         return float(dot_product / (norm_a * norm_b))
 
+

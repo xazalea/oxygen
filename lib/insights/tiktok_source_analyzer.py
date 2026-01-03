@@ -209,3 +209,4 @@ class EnhancedRecommendationEngine:
         # In practice, use WiFi networks, device type, etc.
         return candidates
 
+

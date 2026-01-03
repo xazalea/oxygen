@@ -2,3 +2,4 @@
 # Note: Most packages are included in Pyodide or loaded via micropip
 numpy>=1.21.0
 
+

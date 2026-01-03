@@ -161,3 +161,4 @@ export function getFastInferencePipeline(): FastInferencePipeline {
 
 export default FastInferencePipeline
 
+

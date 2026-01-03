@@ -93,3 +93,4 @@ class UserModel:
         embedding = embedding / np.linalg.norm(embedding)  # Normalize
         return embedding
 
+
