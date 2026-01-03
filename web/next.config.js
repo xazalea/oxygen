@@ -33,27 +33,28 @@ const nextConfig = {
       });
 
       // Force resolution to the browser bundle
-      // We use NormalModuleReplacementPlugin to swap the request
       const webpack = require('webpack');
       config.plugins.push(
         new webpack.NormalModuleReplacementPlugin(
           /^onnxruntime-web$/, 
           (resource) => {
-              // Only replace if it's a direct import of the package root
-              if (resource.request === 'onnxruntime-web') {
-                  resource.request = 'onnxruntime-web/dist/ort.min.js';
-              }
+              resource.request = 'onnxruntime-web/dist/ort.min.js';
           }
         )
       );
       
-      // Also ignore the node-specific file that causes the syntax error
-      // This prevents webpack from even trying to parse it
+      // Explicitly ignore the node-specific file causing syntax errors
+      // Use a more aggressive ignore strategy that covers different path formats
       config.plugins.push(
           new webpack.IgnorePlugin({
-              resourceRegExp: /ort\.node\.min\.mjs$/,
+              resourceRegExp: /ort\.node\.min\.mjs|ort\.node\.min\.js/,
           })
       );
+
+      // Also mark it as an external to be extra safe
+      config.externals.push({
+        'onnxruntime-web/dist/ort-node.min.js': 'commonjs onnxruntime-web/dist/ort-node.min.js',
+      });
     }
     return config;
   },
