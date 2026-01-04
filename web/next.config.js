@@ -32,39 +32,40 @@ const nextConfig = {
       });
 
       // --- FIX FOR ONNXRUNTIME-WEB ---
-      try {
-        // 1. Locate the onnxruntime-web package root
-        // We resolve package.json to get the absolute path to the installation
-        const onnxPackageJsonPath = require.resolve('onnxruntime-web/package.json');
-        const onnxPackageRoot = path.dirname(onnxPackageJsonPath);
-        const onnxDistPath = path.join(onnxPackageRoot, 'dist');
-        
-        // 2. Define the absolute path to the browser-compatible script
-        const ortBrowserPath = path.join(onnxDistPath, 'ort.min.js');
+      // 1. Manually construct paths (avoid require.resolve to bypass exports check)
+      const onnxWebRoot = path.join(process.cwd(), 'node_modules', 'onnxruntime-web');
+      const onnxBrowserBuild = path.join(onnxWebRoot, 'dist', 'ort.min.js');
+      
+      // 2. Alias the package name to the browser build
+      config.resolve.alias['onnxruntime-web'] = onnxBrowserBuild;
 
-        // 3. Alias the main package import to the browser script
-        // This overrides the default exports configuration in package.json
-        config.resolve.alias['onnxruntime-web'] = ortBrowserPath;
+      // 3. Stub out the node builds explicitly to prevent them from being bundled
+      // We assume standard paths inside the package
+      const nodeBuilds = [
+          'dist/ort.node.min.mjs',
+          'dist/ort-node.min.mjs',
+          'dist/ort.node.min.js',
+          'dist/ort-node.min.js'
+      ];
+      
+      nodeBuilds.forEach(buildPath => {
+          config.resolve.alias[path.join(onnxWebRoot, buildPath)] = false;
+      });
 
-        // 4. Explicitly stub out the node-specific builds to false
-        // This ensures that even if something tries to import them, they are treated as empty
-        config.resolve.alias[path.join(onnxDistPath, 'ort.node.min.mjs')] = false;
-        config.resolve.alias[path.join(onnxDistPath, 'ort-node.min.mjs')] = false;
-
-      } catch (e) {
-        console.warn('Failed to configure onnxruntime-web aliases:', e);
-        
-        // Fallback: try manual path if require.resolve fails
-        const onnxDistPath = path.join(process.cwd(), 'node_modules', 'onnxruntime-web', 'dist');
-        config.resolve.alias['onnxruntime-web'] = path.join(onnxDistPath, 'ort.min.js');
-        config.resolve.alias[path.join(onnxDistPath, 'ort.node.min.mjs')] = false;
-      }
-
-      // 5. Use IgnorePlugin as a final safety net
+      // 4. Use NormalModuleReplacementPlugin to intercept any remaining requests
+      // pointing to the node build and redirect them to the browser build
       const webpack = require('webpack');
       config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /onnxruntime-web[\/\\]dist[\/\\]ort\.node\.min\.mjs/,
+          onnxBrowserBuild
+        )
+      );
+      
+      // 5. Ignore the node files completely as a final safety net
+      config.plugins.push(
         new webpack.IgnorePlugin({
-          resourceRegExp: /ort\.node\.min\.mjs$/,
+          resourceRegExp: /ort\.node\.min\.mjs|ort-node\.min\.mjs/,
         })
       );
     }
