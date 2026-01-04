@@ -358,3 +358,4 @@ class ServingService:
         return base_fatigue
 
 
+
