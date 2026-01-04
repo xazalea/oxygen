@@ -5,6 +5,8 @@ pandas>=1.3.0
 
 # Data processing
 pyarrow>=10.0.0  # For parquet files
+zstandard>=0.21.0 # High performance compression
+Pillow>=10.0.0 # Image processing
 
 # TikTok API integration
 TikTokApi>=7.2.0  # Real-time TikTok data collection
@@ -24,4 +26,3 @@ pyyaml>=6.0
 pytest>=7.0.0
 black>=22.0.0
 flake8>=4.0.0
-
