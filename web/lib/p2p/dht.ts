@@ -6,6 +6,8 @@ import { gossipsub } from '@chainsafe/libp2p-gossipsub';
 import { bootstrap } from '@libp2p/bootstrap';
 import { PeerInfo } from './types';
 import { EventEmitter } from 'events';
+import { createPrekeyBundle } from '../crypto/handshake';
+import { sessionManager } from '../crypto/session';
 
 // Public bootstrap nodes (examples, might need reliable ones for production)
 const BOOTSTRAP_NODES = [
@@ -21,6 +23,28 @@ export class P2PDiscovery extends EventEmitter {
 
   public get libp2pNode() {
     return this.node;
+  }
+
+  async joinRoom(room: string, secret: string) {
+    const topic = await this.hashTopic(`${room}:${secret}`);
+    this.topic = topic;
+    this.peers.clear();
+    // regenerate local prekeys
+    const { bundle, advertised } = createPrekeyBundle();
+    sessionManager.setLocal({ bundle, advertised });
+    // resubscribe
+    if (this.node) {
+      await this.node.services.pubsub.unsubscribe(this.topic);
+      this.node.services.pubsub.subscribe(topic);
+      this.node.services.pubsub.subscribe('oxygen-signaling');
+      this.startAdvertising();
+    }
+  }
+
+  private async hashTopic(input: string) {
+    const buf = new TextEncoder().encode(input);
+    const hash = await crypto.subtle.digest('SHA-256', buf);
+    return Buffer.from(hash).toString('hex');
   }
 
   async init() {
@@ -68,12 +92,20 @@ export class P2PDiscovery extends EventEmitter {
 
   private async advertise() {
     if (!this.node) return;
+    if (!sessionManager.getLocal()) {
+      const { bundle, advertised } = createPrekeyBundle();
+      sessionManager.setLocal({ bundle, advertised });
+    }
+    const local = sessionManager.getLocal();
+    if (!local) return;
 
     const info: PeerInfo = {
-      peerId: this.node.peerId.toString(),
+      sessionId: local.advertised.sessionId,
+      prekey: local.advertised,
       timestamp: Date.now(),
       capabilities: ['webrtc', 'relay'],
-      signalHint: 'libp2p-gossip' // In real impl, might be a multiaddr
+      signalHint: 'libp2p-gossip',
+      transportId: this.node.peerId.toString(),
     };
 
     const data = new TextEncoder().encode(JSON.stringify(info));
@@ -85,12 +117,12 @@ export class P2PDiscovery extends EventEmitter {
       const info = JSON.parse(new TextDecoder().decode(data)) as PeerInfo;
       // Filter out stale peers (older than 1 minute)
       if (Date.now() - info.timestamp > 60000) return;
-      
-      if (!this.peers.has(info.peerId)) {
-        console.log('Discovered new peer:', info.peerId);
+
+      if (!this.peers.has(info.sessionId)) {
+        console.log('Discovered new peer:', info.sessionId);
         this.emit('peer:discovered', info);
       }
-      this.peers.set(info.peerId, info);
+      this.peers.set(info.sessionId, info);
     } catch (e) {
       console.error('Failed to parse peer info', e);
     }

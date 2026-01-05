@@ -46,7 +46,10 @@
     "@chainsafe/libp2p-gossipsub": "^1.0.0",
     "@libp2p/bootstrap": "^1.0.0",
     "simple-peer": "^9.11.1",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "libsodium-wrappers": "^0.7.13",
+    "crystals-kyber": "^1.0.6",
+    "protobufjs": "^7.2.5"
   },
   "devDependencies": {
     "@types/node": "^20.9.0",

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, ReactNode } from 'react'
+import html2canvas from 'html2canvas'
 
 interface LiquidGlassProps {
   children: ReactNode
@@ -32,21 +33,15 @@ export function LiquidGlass({
 
     // Load liquidGL scripts
     const loadLiquidGL = async () => {
+      // Expose html2canvas globally for liquidGL
+      if (typeof window !== 'undefined' && !(window as any).html2canvas) {
+        (window as any).html2canvas = html2canvas
+      }
+
       // Check if already loaded
       if ((window as any).liquidGL) {
         initLiquidGL()
         return
-      }
-
-      // Load html2canvas
-      if (!document.querySelector('script[src*="html2canvas"]')) {
-        const html2canvasScript = document.createElement('script')
-        html2canvasScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'
-        html2canvasScript.defer = true
-        document.head.appendChild(html2canvasScript)
-        await new Promise((resolve) => {
-          html2canvasScript.onload = resolve
-        })
       }
 
       // Load liquidGL

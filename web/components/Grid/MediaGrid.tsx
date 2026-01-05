@@ -21,7 +21,7 @@ export function MediaGrid({ items, columns = 3, onItemClick }: MediaGridProps) {
   }
 
   return (
-    <div className={`grid ${gridCols[columns]} gap-1`}>
+    <div className={`grid ${gridCols[columns] || gridCols[3]} gap-1`}>
       {items.map((item, index) => {
         const isVideo = 'videoUrl' in item || item.type === 'video'
         const thumbnail = 'thumbnailUrl' in item ? item.thumbnailUrl : 

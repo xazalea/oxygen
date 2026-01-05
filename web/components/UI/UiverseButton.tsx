@@ -46,7 +46,7 @@ export function UiverseButton({
       disabled={disabled}
       whileHover={{ scale: disabled ? 1 : 1.02 }}
       whileTap={{ scale: disabled ? 1 : 0.98 }}
-      className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className} ${
+      className={`${baseClasses} ${variantClasses[variant] || variantClasses.primary} ${sizeClasses[size] || sizeClasses.md} ${className} ${
         disabled ? 'opacity-50 cursor-not-allowed' : ''
       }`}
     >
