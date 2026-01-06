@@ -84,11 +84,20 @@ const nextConfig = {
         test: /ort-node\.min\.mjs$/,
         use: 'null-loader', 
       });
+      config.module.rules.push({
+        test: /ort-wasm-simd-threaded\.mjs$/,
+        use: 'null-loader', 
+      });
       
       // Also ignore the specific import trace mentioned in logs if it comes from another file
       config.plugins.push(
         new webpack.IgnorePlugin({
           resourceRegExp: /ort\.node\.min\.mjs$/,
+        })
+      );
+      config.plugins.push(
+        new webpack.IgnorePlugin({
+          resourceRegExp: /ort-wasm-simd-threaded\.mjs$/,
         })
       );
 
