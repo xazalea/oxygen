@@ -79,6 +79,9 @@ const nextConfig = {
         })
       );
 
+      // --- FIX FOR LIBSODIUM-WRAPPERS ---
+      config.resolve.alias['libsodium-wrappers'] = 'libsodium-wrappers/dist/modules/libsodium-wrappers.js';
+      
       // 4. NormalModuleReplacementPlugin as a backup to redirect requests
       if (onnxRoot) {
          config.plugins.push(
