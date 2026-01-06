@@ -76,6 +76,14 @@ const nextConfig = {
         test: /ort\.node\.min\.mjs$/,
         use: 'null-loader', 
       });
+      config.module.rules.push({
+        test: /ort\.node\.min\.js$/,
+        use: 'null-loader', 
+      });
+      config.module.rules.push({
+        test: /ort-node\.min\.mjs$/,
+        use: 'null-loader', 
+      });
       
       // Also ignore the specific import trace mentioned in logs if it comes from another file
       config.plugins.push(
