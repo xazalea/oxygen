@@ -1,7 +1,7 @@
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
-import { Home, Search, Plus, Inbox, User } from 'lucide-react'
+import { Home, Search, Plus, Inbox, User, MessageSquare, Video } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 export function BottomNav() {
@@ -11,7 +11,9 @@ export function BottomNav() {
   const navItems = [
     { icon: Home, label: 'Home', path: '/' },
     { icon: Search, label: 'Discover', path: '/discover' },
+    { icon: MessageSquare, label: 'Threads', path: '/threads' },
     { icon: Plus, label: 'Create', path: '/create' },
+    { icon: Video, label: 'Live', path: '/live' },
     { icon: Inbox, label: 'Inbox', path: '/inbox' },
     { icon: User, label: 'Profile', path: '/profile' },
   ]

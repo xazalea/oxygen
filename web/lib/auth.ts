@@ -14,6 +14,7 @@ export interface User {
   following: number
   likes: number
   verified: boolean
+  isOver18?: boolean
 }
 
 let currentUser: User | null = null

@@ -96,6 +96,23 @@ export default function CreatePage() {
                   </UiverseButton>
                 </LiquidGlass>
               </div>
+
+              <div className="mt-4">
+                 <a href="/create/ai" className="block">
+                  <LiquidGlass preset="edge" className="rounded-xl">
+                    <UiverseButton
+                      variant="ghost"
+                      size="lg"
+                      className="flex flex-col items-center gap-3 p-6 w-full h-auto"
+                    >
+                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-pink-500/30 to-purple-500/30 flex items-center justify-center border border-white/10">
+                        <Sparkles className="w-8 h-8 text-white" />
+                      </div>
+                      <span className="text-white text-sm font-semibold">AI Video Gen</span>
+                    </UiverseButton>
+                  </LiquidGlass>
+                </a>
+              </div>
             </div>
           </div>
         ) : (
