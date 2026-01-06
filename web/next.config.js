@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const path = require('path');
 const fs = require('fs');
+const webpack = require('webpack'); // Move require('webpack') to top level
 
 const nextConfig = {
   reactStrictMode: true,
@@ -75,14 +76,13 @@ const nextConfig = {
         test: /ort\.node\.min\.mjs$/,
         use: 'null-loader', 
       });
+      
       // Also ignore the specific import trace mentioned in logs if it comes from another file
       config.plugins.push(
         new webpack.IgnorePlugin({
           resourceRegExp: /ort\.node\.min\.mjs$/,
         })
       );
-
-      const webpack = require('webpack');
 
       // 3. Ignore plugin with a very specific regex that matches the filename
       // This should prevent webpack from processing it even if alias fails
