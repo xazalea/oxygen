@@ -80,7 +80,8 @@ const nextConfig = {
       );
 
       // --- FIX FOR LIBSODIUM-WRAPPERS ---
-      config.resolve.alias['libsodium-wrappers'] = 'libsodium-wrappers/dist/modules/libsodium-wrappers.js';
+      // Force resolution to the main entry point which should be CJS or UMD compatible with Webpack 5 default
+      config.resolve.alias['libsodium-wrappers'] = require.resolve('libsodium-wrappers');
       
       // 4. NormalModuleReplacementPlugin as a backup to redirect requests
       if (onnxRoot) {
