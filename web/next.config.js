@@ -69,6 +69,12 @@ const nextConfig = {
         });
       }
 
+      // --- ADDED FIX FOR WEBPACK PARSING ERROR ---
+      config.module.rules.push({
+        test: /ort\.node\.min\.mjs$/,
+        use: 'null-loader', // Effectively ignore this file during bundling
+      });
+
       const webpack = require('webpack');
 
       // 3. Ignore plugin with a very specific regex that matches the filename
