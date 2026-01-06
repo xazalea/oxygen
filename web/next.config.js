@@ -70,10 +70,17 @@ const nextConfig = {
       }
 
       // --- ADDED FIX FOR WEBPACK PARSING ERROR ---
+      // We need to match the file path regardless of where it is in node_modules
       config.module.rules.push({
         test: /ort\.node\.min\.mjs$/,
-        use: 'null-loader', // Effectively ignore this file during bundling
+        use: 'null-loader', 
       });
+      // Also ignore the specific import trace mentioned in logs if it comes from another file
+      config.plugins.push(
+        new webpack.IgnorePlugin({
+          resourceRegExp: /ort\.node\.min\.mjs$/,
+        })
+      );
 
       const webpack = require('webpack');
 
@@ -90,9 +97,31 @@ const nextConfig = {
       try {
         config.resolve.alias['libsodium-wrappers'] = require.resolve('libsodium-wrappers');
       } catch (e) {
-        config.resolve.alias['libsodium-wrappers'] = 'libsodium-wrappers/dist/modules/libsodium-wrappers.js';
+        // Fallback: If installed in node_modules, it should resolve automatically.
+        // We explicitly tell webpack to look for the browser or main field.
+        // But if it's failing to find './libsodium.mjs', it means it's picking up the ESM build.
+        // Let's force it to pick the UMD build if possible, or just let standard resolution happen 
+        // but ensure we don't break if it's missing.
+        // The previous error "Module not found: Can't resolve './libsodium.mjs'" suggests it found the wrapper but not the worker.
+        
+        // Strategy 2: Explicitly alias to the memory-safe version which is usually simpler
+        // config.resolve.alias['libsodium-wrappers'] = 'libsodium-wrappers/dist/modules/libsodium-wrappers.js';
       }
       
+      // NEW FIX: Force resolution of libsodium.js (worker) if the wrapper tries to load it
+      // This is a bit of a hack, but if the ESM build is used, it expects relative paths.
+      // We can try to redirect the ESM build request to the CJS build.
+      
+      // Let's try to ignore the specific failing ESM file for libsodium-wrappers if possible, 
+      // or alias the package to the distribution file directly.
+      
+      // Direct path alias to the UMD/CJS file which usually doesn't have the .mjs import issue
+      // We assume it is installed at the root node_modules
+      const libsodiumPath = path.join(process.cwd(), 'node_modules', 'libsodium-wrappers', 'dist', 'modules', 'libsodium-wrappers.js');
+      if (fs.existsSync(libsodiumPath)) {
+         config.resolve.alias['libsodium-wrappers'] = libsodiumPath;
+      }
+
       // 4. NormalModuleReplacementPlugin as a backup to redirect requests
       if (onnxRoot) {
          config.plugins.push(
