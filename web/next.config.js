@@ -35,8 +35,7 @@ const nextConfig = {
 
       // --- FIX FOR ONNXRUNTIME-WEB ---
       
-      // Helper to find package root since require.resolve('onnxruntime-web/package.json') 
-      // fails due to exports configuration
+      // Helper to find package root
       function findOnnxRoot() {
         const potentialPaths = [
           path.join(process.cwd(), 'node_modules', 'onnxruntime-web'),
@@ -53,103 +52,67 @@ const nextConfig = {
       const onnxRoot = findOnnxRoot();
       
       if (onnxRoot) {
-        const onnxBrowserBuild = path.join(onnxRoot, 'dist', 'ort.min.js');
-        
-        // 1. Alias the main package to the browser build
-        config.resolve.alias['onnxruntime-web'] = onnxBrowserBuild;
-        
-        // 2. Explicitly alias the node builds to false
+        // Force usage of the browser build
+        config.resolve.alias['onnxruntime-web$'] = path.join(onnxRoot, 'dist', 'ort.min.js');
+        config.resolve.alias['onnxruntime-web/dist/ort.min.js'] = path.join(onnxRoot, 'dist', 'ort.min.js');
+
+        // Explicitly ignore Node.js specific files
         const nodeFiles = [
           'dist/ort.node.min.mjs',
           'dist/ort-node.min.mjs',
-          'dist/ort.node.min.js'
+          'dist/ort.node.min.js',
+          'dist/ort-wasm-simd-threaded.mjs',
+          'dist/ort-wasm-threaded.mjs',
+          'dist/ort-wasm-simd.mjs',
+          'dist/ort-wasm.mjs'
         ];
         
         nodeFiles.forEach(file => {
           config.resolve.alias[path.join(onnxRoot, file)] = false;
         });
-        
-        // Also alias the problem child specifically to false
-        config.resolve.alias[path.join(onnxRoot, 'dist', 'ort-wasm-simd-threaded.mjs')] = false;
       }
 
-      // --- ADDED FIX FOR WEBPACK PARSING ERROR ---
-      // We need to match the file path regardless of where it is in node_modules
+      // Prevent webpack from parsing these files at all
+      config.module.noParse = config.module.noParse || [];
+      if (Array.isArray(config.module.noParse)) {
+        config.module.noParse.push(/ort\.node\.min\.mjs$/);
+        config.module.noParse.push(/ort-node\.min\.mjs$/);
+      } else {
+        // If it's a RegExp or function, wrap it (rare in Next.js default but safe to handle)
+        const existingNoParse = config.module.noParse;
+        config.module.noParse = (content) => {
+          if (/ort\.node\.min\.mjs$/.test(content)) return true;
+          if (/ort-node\.min\.mjs$/.test(content)) return true;
+          if (typeof existingNoParse === 'function') return existingNoParse(content);
+          if (existingNoParse instanceof RegExp) return existingNoParse.test(content);
+          return false;
+        };
+      }
+
+      // Explicitly load these with null-loader as a fallback
       config.module.rules.push({
         test: /ort\.node\.min\.mjs$/,
-        use: 'null-loader', 
-      });
-      config.module.rules.push({
-        test: /ort\.node\.min\.js$/,
         use: 'null-loader', 
       });
       config.module.rules.push({
         test: /ort-node\.min\.mjs$/,
         use: 'null-loader', 
       });
-      config.module.rules.push({
-        test: /ort-wasm-simd-threaded\.mjs$/,
-        use: 'null-loader', 
-      });
-      
-      // Also ignore the specific import trace mentioned in logs if it comes from another file
-      config.plugins.push(
-        new webpack.IgnorePlugin({
-          resourceRegExp: /ort\.node\.min\.mjs$/,
-        })
-      );
-      config.plugins.push(
-        new webpack.IgnorePlugin({
-          resourceRegExp: /ort-wasm-simd-threaded\.mjs$/,
-        })
-      );
-
-      // 3. Ignore plugin with a very specific regex that matches the filename
-      // This should prevent webpack from processing it even if alias fails
-      config.plugins.push(
-        new webpack.IgnorePlugin({
-          resourceRegExp: /ort\.node\.min\.mjs$/,
-        })
-      );
 
       // --- FIX FOR LIBSODIUM-WRAPPERS ---
-      // Force resolution to the main entry point which should be CJS or UMD compatible with Webpack 5 default
-      try {
-        config.resolve.alias['libsodium-wrappers'] = require.resolve('libsodium-wrappers');
-      } catch (e) {
-        // Fallback: If installed in node_modules, it should resolve automatically.
-        // We explicitly tell webpack to look for the browser or main field.
-        // But if it's failing to find './libsodium.mjs', it means it's picking up the ESM build.
-        // Let's force it to pick the UMD build if possible, or just let standard resolution happen 
-        // but ensure we don't break if it's missing.
-        // The previous error "Module not found: Can't resolve './libsodium.mjs'" suggests it found the wrapper but not the worker.
+      // Force resolution to the UMD/CJS build to avoid ESM resolution issues
+      // We use path.join to avoid Node.js 'exports' restrictions that might block require.resolve
+      const libsodiumWrapperPath = path.join(process.cwd(), 'node_modules', 'libsodium-wrappers', 'dist', 'modules', 'libsodium-wrappers.js');
+      
+      // Only apply alias if we can reasonably guess the path, otherwise let standard resolution fail/succeed
+      if (fs.existsSync(path.join(process.cwd(), 'node_modules', 'libsodium-wrappers'))) {
+        config.resolve.alias['libsodium-wrappers$'] = libsodiumWrapperPath;
+        config.resolve.alias['libsodium-wrappers/dist/modules-esm/libsodium-wrappers.mjs'] = libsodiumWrapperPath;
         
-        // Strategy 2: Explicitly alias to the memory-safe version which is usually simpler
-        // config.resolve.alias['libsodium-wrappers'] = 'libsodium-wrappers/dist/modules/libsodium-wrappers.js';
-      }
-      
-      // NEW FIX: Force resolution of libsodium.js (worker) if the wrapper tries to load it
-      // This is a bit of a hack, but if the ESM build is used, it expects relative paths.
-      // We can try to redirect the ESM build request to the CJS build.
-      
-      // Let's try to ignore the specific failing ESM file for libsodium-wrappers if possible, 
-      // or alias the package to the distribution file directly.
-      
-      // Direct path alias to the UMD/CJS file which usually doesn't have the .mjs import issue
-      // We assume it is installed at the root node_modules
-      const libsodiumPath = path.join(process.cwd(), 'node_modules', 'libsodium-wrappers', 'dist', 'modules', 'libsodium-wrappers.js');
-      if (fs.existsSync(libsodiumPath)) {
-         config.resolve.alias['libsodium-wrappers'] = libsodiumPath;
-      }
-
-      // 4. NormalModuleReplacementPlugin as a backup to redirect requests
-      if (onnxRoot) {
-         config.plugins.push(
-          new webpack.NormalModuleReplacementPlugin(
-            /onnxruntime-web\/dist\/ort\.node\.min\.mjs/,
-            path.join(onnxRoot, 'dist', 'ort.min.js')
-          )
-        );
+        // Also alias the internal import that was failing: ./libsodium.mjs
+        // This is a relative import inside the package, so we need to be careful.
+        // Webpack allows aliasing relative imports if we match exact string.
+        config.resolve.alias['./libsodium.mjs'] = libsodiumWrapperPath;
       }
     }
     return config;
