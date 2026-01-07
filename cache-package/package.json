@@ -1,0 +1,27 @@
+{
+  "name": "@oxygen/cache",
+  "version": "0.1.0",
+  "description": "Cache package for Oxygen TikTok Clone",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "oxygen",
+    "cache",
+    "tiktok",
+    "youtube"
+  ],
+  "author": "Oxygen Team",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  },
+  "files": [
+    "dist",
+    "data"
+  ]
+}
+
