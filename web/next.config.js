@@ -68,6 +68,9 @@ const nextConfig = {
         nodeFiles.forEach(file => {
           config.resolve.alias[path.join(onnxRoot, file)] = false;
         });
+        
+        // Also alias the problem child specifically to false
+        config.resolve.alias[path.join(onnxRoot, 'dist', 'ort-wasm-simd-threaded.mjs')] = false;
       }
 
       // --- ADDED FIX FOR WEBPACK PARSING ERROR ---
