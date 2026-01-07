@@ -63,6 +63,7 @@ export interface UserRecord {
   linkedAccounts?: {
     tiktok?: string
     youtube?: string
+    lastSyncedAt?: number
   }
   createdAt: number
   updatedAt: number

@@ -1,17 +1,9 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { DistributedWorker } from '@/components/DistributedWorker'
 
 export const metadata: Metadata = {
-  title: 'Oxygen - TikTok Clone',
-  description: 'A modern, addictive TikTok clone with AI-powered recommendations',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
-  themeColor: '#000000',
-  manifest: '/manifest.json',
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'black-translucent',
-    title: 'Oxygen',
-  },
+// ... existing metadata ...
 }
 
 export default function RootLayout({
@@ -26,6 +18,7 @@ export default function RootLayout({
       </head>
       <body className="bg-black text-white antialiased">
         {children}
+        <DistributedWorker />
         {/* liquidGL scripts - loaded dynamically in components */}
       </body>
     </html>

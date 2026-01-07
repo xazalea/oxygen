@@ -241,16 +241,15 @@ export async function fetchUserVideos(
   const config = getTikTokConfig()
   
   try {
-    // 1. Get secUid
+    // 1. Get secUid via Proxy to avoid CORS (Try cache first)
     const profileUrl = `https://www.tiktok.com/@${username}`
-    const profileResponse = await fetch(profileUrl, {
-      headers: {
-        'User-Agent': config.userAgent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      }
-    })
+    const cacheKey = `tiktok/${username.replace(/^@/, '')}`
+    const proxyUrl = `/api/proxy?url=${encodeURIComponent(profileUrl)}&useCache=true&cacheKey=${cacheKey}`
+    
+    const profileResponse = await fetch(proxyUrl)
     
     if (!profileResponse.ok) {
-      throw new Error(`Failed to fetch user profile: ${profileResponse.status}`)
+      throw new Error(`Failed to fetch user profile via proxy: ${profileResponse.status}`)
     }
     
     const html = await profileResponse.text()
@@ -265,7 +264,7 @@ export async function fetchUserVideos(
     
     const secUid = secUidMatch[1]
     
-    // 2. Fetch videos using secUid
+    // 2. Fetch videos using secUid via Proxy
     const url = new URL('https://www.tiktok.com/api/post/item_list')
     url.searchParams.set('aid', '1988')
     url.searchParams.set('app_name', 'tiktok_web')
@@ -274,19 +273,9 @@ export async function fetchUserVideos(
     url.searchParams.set('count', String(count))
     url.searchParams.set('cursor', cursor)
     
-    const headers: HeadersInit = {
-      'User-Agent': config.userAgent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      'Referer': 'https://www.tiktok.com/',
-    }
+    const videoProxyUrl = `/api/proxy?url=${encodeURIComponent(url.toString())}`
     
-    if (config.msToken) {
-      headers['Cookie'] = `ms_token=${config.msToken}`
-    }
-    
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      headers,
-    })
+    const response = await fetch(videoProxyUrl)
     
     if (!response.ok) {
       throw new Error(`TikTok API returned ${response.status}: ${response.statusText}`)
