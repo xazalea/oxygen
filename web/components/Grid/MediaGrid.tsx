@@ -20,8 +20,11 @@ export function MediaGrid({ items, columns = 3, onItemClick }: MediaGridProps) {
     4: 'grid-cols-4'
   }
 
+  // Validate columns to prevent object injection
+  const safeColumns = [2, 3, 4].includes(columns) ? columns : 3
+
   return (
-    <div className={`grid ${gridCols[columns] || gridCols[3]} gap-1`}>
+    <div className={`grid ${gridCols[safeColumns]} gap-1`}>
       {items.map((item, index) => {
         const isVideo = 'videoUrl' in item || item.type === 'video'
         const thumbnail = 'thumbnailUrl' in item ? item.thumbnailUrl : 

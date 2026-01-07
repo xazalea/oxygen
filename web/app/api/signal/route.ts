@@ -39,6 +39,11 @@ export async function POST(req: NextRequest) {
       
       const { targetId, signal } = data
       
+      // Security check to prevent object injection
+      if (!targetId || typeof targetId !== 'string' || ['__proto__', 'constructor', 'prototype'].includes(targetId)) {
+        return NextResponse.json({ error: 'Invalid targetId' }, { status: 400 })
+      }
+      
       // Store the signal for the target to pick up
       // In a real app, we'd push this via WebSocket
       // Here we just store it in a mailbox

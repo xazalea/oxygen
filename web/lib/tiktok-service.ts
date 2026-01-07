@@ -10,6 +10,7 @@
 import {
   fetchTrendingVideos,
   fetchVideoById,
+  fetchUserVideos,
   parseTikTokVideo,
   extractHashtags,
 } from './tiktok-api-enhanced'
@@ -37,6 +38,29 @@ export interface TikTokVideo {
   }
   hashtags?: string[]
   timestamp: number
+}
+
+export async function getUserVideos(username: string, count: number = 20): Promise<TikTokVideo[]> {
+  try {
+    const { videos: rawVideos } = await fetchUserVideos(username, count)
+    const videos: TikTokVideo[] = []
+
+    for (const videoData of rawVideos) {
+      try {
+        const parsed = parseTikTokVideo(videoData)
+        if (parsed.videoUrl) {
+          videos.push(parsed)
+        }
+      } catch (err) {
+        console.warn('Error parsing video:', err)
+      }
+    }
+    
+    return videos
+  } catch (error: any) {
+    console.error(`Error fetching videos for user ${username}:`, error)
+    return []
+  }
 }
 
 export async function getTrendingVideos(count: number = 20): Promise<TikTokVideo[]> {
@@ -105,6 +129,7 @@ export async function getVideoById(videoId: string): Promise<TikTokVideo | null>
 export function getTikTokService() {
   return {
     getTrendingVideos,
+    getUserVideos,
     getVideoById
   }
 }

@@ -96,6 +96,11 @@ export class TelegramDBOperations {
     return (users[0] as UserRecord) || null
   }
 
+  async getUsersWithLinkedAccounts(): Promise<UserRecord[]> {
+    const users = await this.db.read(TABLES.USERS)
+    return (users as UserRecord[]).filter(u => u.linkedAccounts?.tiktok || u.linkedAccounts?.youtube)
+  }
+
   async updateUser(id: string, data: Partial<UserRecord>): Promise<UserRecord | null> {
     return await this.db.update(TABLES.USERS, id, data) as UserRecord | null
   }

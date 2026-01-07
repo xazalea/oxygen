@@ -70,7 +70,9 @@ export function LiquidGlass({
         edge: { refraction: 0.047, bevelDepth: 0.136, bevelWidth: 0.076, frost: 2, shadow: true, specular: false },
       }
 
-      const config = presets[preset] || presets.default
+      // Security check: ensure preset is a valid key to prevent object injection
+      const safePreset = Object.prototype.hasOwnProperty.call(presets, preset) ? preset : 'default'
+      const config = presets[safePreset]
       
       // Override with custom props if provided
       if (refraction !== undefined) config.refraction = refraction

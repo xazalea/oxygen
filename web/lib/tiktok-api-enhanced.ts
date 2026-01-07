@@ -229,6 +229,87 @@ export async function fetchVideoById(videoId: string): Promise<TikTokVideoRaw | 
 }
 
 /**
+ * Fetch user videos
+ * 
+ * First gets secUid from profile page, then fetches videos
+ */
+export async function fetchUserVideos(
+  username: string,
+  count: number = 20,
+  cursor: string = '0'
+): Promise<{ videos: TikTokVideoRaw[]; nextCursor: string }> {
+  const config = getTikTokConfig()
+  
+  try {
+    // 1. Get secUid
+    const profileUrl = `https://www.tiktok.com/@${username}`
+    const profileResponse = await fetch(profileUrl, {
+      headers: {
+        'User-Agent': config.userAgent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      }
+    })
+    
+    if (!profileResponse.ok) {
+      throw new Error(`Failed to fetch user profile: ${profileResponse.status}`)
+    }
+    
+    const html = await profileResponse.text()
+    
+    // Extract secUid (simple regex, might need updates if TikTok changes HTML)
+    // Looking for "secUid":"..." or "sec_uid":"..."
+    const secUidMatch = html.match(/"secUid":"([^"]+)"/) || html.match(/"sec_uid":"([^"]+)"/)
+    
+    if (!secUidMatch) {
+      throw new Error('Could not find secUid for user')
+    }
+    
+    const secUid = secUidMatch[1]
+    
+    // 2. Fetch videos using secUid
+    const url = new URL('https://www.tiktok.com/api/post/item_list')
+    url.searchParams.set('aid', '1988')
+    url.searchParams.set('app_name', 'tiktok_web')
+    url.searchParams.set('device_platform', 'web')
+    url.searchParams.set('secUid', secUid)
+    url.searchParams.set('count', String(count))
+    url.searchParams.set('cursor', cursor)
+    
+    const headers: HeadersInit = {
+      'User-Agent': config.userAgent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      'Referer': 'https://www.tiktok.com/',
+    }
+    
+    if (config.msToken) {
+      headers['Cookie'] = `ms_token=${config.msToken}`
+    }
+    
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers,
+    })
+    
+    if (!response.ok) {
+      throw new Error(`TikTok API returned ${response.status}: ${response.statusText}`)
+    }
+    
+    const data: TikTokApiResponse = await response.json()
+    
+    if (!data.itemList || data.itemList.length === 0) {
+      return { videos: [], nextCursor: cursor }
+    }
+    
+    return {
+      videos: data.itemList,
+      nextCursor: data.cursor || '0',
+    }
+    
+  } catch (error) {
+    console.error('Error fetching user videos:', error)
+    throw error
+  }
+}
+
+/**
  * Extract hashtags from text
  * Based on TikTok source analysis
  */

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getDownloadService } from '@/lib/download-service'
 import { getDBOperations } from '@/lib/telegram-db-operations'
-import { getTrendingVideos } from '@/lib/tiktok-service'
+import { getUserVideos } from '@/lib/tiktok-service'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -34,12 +34,27 @@ export async function GET(request: NextRequest) {
     const downloadService = getDownloadService()
     const db = getDBOperations()
 
-    // Get trending videos from TikTok
-    const trendingVideos = await getTrendingVideos(50)
+    // Get videos from linked accounts
+    const users = await db.getUsersWithLinkedAccounts()
+    let videosToProcess: any[] = []
+
+    console.log(`Found ${users.length} users with linked accounts`)
+
+    for (const user of users) {
+      if (user.linkedAccounts?.tiktok) {
+        try {
+          console.log(`Fetching videos for user: ${user.username} (TikTok: ${user.linkedAccounts.tiktok})`)
+          const userVideos = await getUserVideos(user.linkedAccounts.tiktok, 10)
+          videosToProcess = [...videosToProcess, ...userVideos]
+        } catch (err) {
+          console.error(`Failed to fetch videos for user ${user.username}:`, err)
+        }
+      }
+    }
 
     // Queue downloads for videos not yet downloaded
     let queued = 0
-    for (const video of trendingVideos) {
+    for (const video of videosToProcess) {
       // Check if already downloaded
       const existing = await db.getVideoByTikTokId(video.id)
       
