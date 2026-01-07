@@ -60,6 +60,10 @@ export interface UserRecord {
     muted: string[]
     closeFriends: string[]
   }
+  linkedAccounts?: {
+    tiktok?: string
+    youtube?: string
+  }
   createdAt: number
   updatedAt: number
 }

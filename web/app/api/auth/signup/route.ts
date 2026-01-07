@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getDBOperations } from '@/lib/telegram-db-operations'
 
 export const dynamic = 'force-dynamic'
 
@@ -6,6 +7,10 @@ interface SignupRequest {
   username: string
   email: string
   password: string
+  linkedAccounts?: {
+    tiktok?: string
+    youtube?: string
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -44,25 +49,49 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // In production, create user in database
-    const user = {
-      id: `user-${Date.now()}`,
+    const db = getDBOperations()
+
+    // Check if user already exists
+    const existingUser = await db.getUserByUsername(body.username)
+    if (existingUser) {
+      return NextResponse.json(
+        { error: 'Username already taken' },
+        { status: 409 }
+      )
+    }
+
+    // Create user in database
+    const newUser = await db.createUser({
       username: body.username,
       email: body.email,
       displayName: body.username,
-      avatar: null,
+      avatar: undefined,
       bio: '',
       followers: 0,
       following: 0,
       likes: 0,
-      verified: false,
-    }
+      isPrivate: false,
+      preferences: {
+        theme: 'auto',
+        autoplay: true,
+        notifications: true,
+        language: 'en'
+      },
+      socialGraph: {
+        followers: [],
+        following: [],
+        blocked: [],
+        muted: [],
+        closeFriends: []
+      },
+      linkedAccounts: body.linkedAccounts
+    })
 
     // In production, generate JWT token
     const token = `mock-token-${Date.now()}`
 
     return NextResponse.json(
-      { user, token },
+      { user: newUser, token },
       {
         status: 201,
         headers: {

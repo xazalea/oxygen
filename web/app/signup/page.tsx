@@ -13,6 +13,8 @@ export default function SignupPage() {
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [tiktokUsername, setTiktokUsername] = useState('')
+  const [youtubeChannelId, setYoutubeChannelId] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -21,12 +23,39 @@ export default function SignupPage() {
     e.preventDefault()
     setIsLoading(true)
     
-    // In production, call authentication API
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // Redirect to home
-    router.push('/')
-    setIsLoading(false)
+    try {
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          username,
+          password,
+          linkedAccounts: {
+            tiktok: tiktokUsername || undefined,
+            youtube: youtubeChannelId || undefined
+          }
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Signup failed')
+      }
+
+      const data = await response.json()
+      
+      // Store token (in a real app, maybe use a context or secure cookie handling)
+      // For now, assume the cookie is set by the server or we just redirect
+      
+      router.push('/')
+    } catch (error) {
+      console.error('Signup error:', error)
+      // Show error handling UI here if needed
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -83,6 +112,36 @@ export default function SignupPage() {
                 size="sm"
                 className="absolute right-2 top-1/2 transform -translate-y-1/2"
               />
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-white/10">
+            <h3 className="text-white/90 text-sm font-semibold mb-4">Link Accounts (Optional)</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-white/80 text-sm mb-3 font-medium">TikTok Username</label>
+                <UiverseInput
+                  type="text"
+                  name="tiktokUsername"
+                  value={tiktokUsername}
+                  onChange={(e) => setTiktokUsername(e.target.value)}
+                  placeholder="@username"
+                  className="bg-white/5 border-white/10"
+                />
+              </div>
+
+              <div>
+                <label className="block text-white/80 text-sm mb-3 font-medium">YouTube Channel ID</label>
+                <UiverseInput
+                  type="text"
+                  name="youtubeChannelId"
+                  value={youtubeChannelId}
+                  onChange={(e) => setYoutubeChannelId(e.target.value)}
+                  placeholder="Channel ID"
+                  className="bg-white/5 border-white/10"
+                />
+              </div>
             </div>
           </div>
 
