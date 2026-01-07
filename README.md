@@ -71,6 +71,12 @@ Create `.env.local` in the `web/` directory:
 ```env
 # Optional but recommended for better rate limits
 TIKTOK_MS_TOKEN=your_tiktok_ms_token_here
+
+# Google Photos Storage Integration
+GOOGLE_PHOTOS_CLIENT_ID=your_client_id_here
+GOOGLE_PHOTOS_CLIENT_SECRET=your_client_secret_here
+GOOGLE_PHOTOS_REFRESH_TOKEN=your_refresh_token_here
+GOOGLE_PHOTOS_DEVICE_MODEL=Pixel XL
 ```
 
 ### Getting TikTok Token
@@ -79,6 +85,14 @@ TIKTOK_MS_TOKEN=your_tiktok_ms_token_here
 2. Open browser developer tools (F12)
 3. Go to Application/Storage → Cookies → tiktok.com
 4. Find `ms_token` cookie and copy its value
+
+### Google Photos Integration
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a project and enable "Photos Library API"
+3. Create OAuth credentials (Client ID & Secret) with redirect URI: `http://localhost:3000/api/storage/google-photos/callback` (or your production URL)
+4. Navigate to `/api/storage/google-photos/auth` in your browser to authorize and get your `GOOGLE_PHOTOS_REFRESH_TOKEN`
+5. Add credentials to `.env.local`
 
 ## 🚀 Deployment
 

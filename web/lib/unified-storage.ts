@@ -2,11 +2,12 @@
  * Unified Storage Abstraction
  * 
  * Provides a unified interface for multiple storage backends.
- * Implements round-robin distribution strategy between Telegram and Streamtape.
+ * Implements round-robin distribution strategy between Telegram, Streamtape, and Google Photos.
  */
 
 import { TelegramStorage, FileMetadata as TelegramFileMetadata } from './telegram-storage'
 import { StreamtapeStorage, StreamtapeFileMetadata } from './streamtape-storage'
+import { GooglePhotosStorage, GooglePhotosFileMetadata } from './google-photos-storage'
 
 export interface UploadOptions {
   mimeType?: string
@@ -22,15 +23,16 @@ export interface FileMetadata {
   fileSize?: number
   mimeType?: string
   uploadedAt: number
-  storageType: 'telegram' | 'streamtape'
+  storageType: 'telegram' | 'streamtape' | 'googlephotos'
   link?: string
 }
 
-export type StorageType = 'telegram' | 'streamtape'
+export type StorageType = 'telegram' | 'streamtape' | 'googlephotos'
 
 export class UnifiedStorage {
   private telegramStorage: TelegramStorage
   private streamtapeStorage: StreamtapeStorage
+  private googlePhotosStorage: GooglePhotosStorage
   private lastUsedStorage: StorageType = 'telegram'
   private storageMap: Map<string, StorageType> = new Map() // Track which storage each file is in
 
@@ -40,18 +42,23 @@ export class UnifiedStorage {
       try {
         const { getTelegramStorage } = require('./telegram-storage')
         const { getStreamtapeStorage } = require('./streamtape-storage')
+        const { getGooglePhotosStorage } = require('./google-photos-storage')
+        
         this.telegramStorage = getTelegramStorage()
         this.streamtapeStorage = getStreamtapeStorage()
+        this.googlePhotosStorage = getGooglePhotosStorage()
       } catch (e) {
         // Fallback if modules can't be loaded
         console.warn('Failed to initialize storage backends:', e)
         this.telegramStorage = null as any
         this.streamtapeStorage = null as any
+        this.googlePhotosStorage = null as any
       }
     } else {
       // Client-side: use placeholders
       this.telegramStorage = null as any
       this.streamtapeStorage = null as any
+      this.googlePhotosStorage = null as any
     }
   }
 
@@ -64,19 +71,21 @@ export class UnifiedStorage {
     }
 
     try {
-      if (this.telegramStorage) {
-        await this.telegramStorage.initialize()
-      }
+      if (this.telegramStorage) await this.telegramStorage.initialize()
     } catch (error) {
       console.warn('Failed to initialize Telegram storage:', error)
     }
 
     try {
-      if (this.streamtapeStorage) {
-        await this.streamtapeStorage.initialize()
-      }
+      if (this.streamtapeStorage) await this.streamtapeStorage.initialize()
     } catch (error) {
       console.warn('Failed to initialize Streamtape storage:', error)
+    }
+
+    try {
+      if (this.googlePhotosStorage) await this.googlePhotosStorage.initialize()
+    } catch (error) {
+      console.warn('Failed to initialize Google Photos storage:', error)
     }
   }
 
@@ -84,7 +93,14 @@ export class UnifiedStorage {
    * Get next storage for round-robin distribution
    */
   private getNextStorage(): StorageType {
-    this.lastUsedStorage = this.lastUsedStorage === 'telegram' ? 'streamtape' : 'telegram'
+    // Simple round-robin: telegram -> streamtape -> googlephotos -> telegram
+    if (this.lastUsedStorage === 'telegram') {
+      this.lastUsedStorage = 'streamtape'
+    } else if (this.lastUsedStorage === 'streamtape') {
+      this.lastUsedStorage = 'googlephotos'
+    } else {
+      this.lastUsedStorage = 'telegram'
+    }
     return this.lastUsedStorage
   }
 
@@ -120,6 +136,22 @@ export class UnifiedStorage {
   }
 
   /**
+   * Convert Google Photos metadata to unified format
+   */
+  private convertGooglePhotosMetadata(metadata: GooglePhotosFileMetadata): FileMetadata {
+    return {
+      fileId: metadata.fileId,
+      fileUniqueId: metadata.fileId,
+      fileName: metadata.fileName,
+      fileSize: metadata.fileSize,
+      mimeType: metadata.mimeType,
+      uploadedAt: metadata.uploadedAt,
+      storageType: 'googlephotos',
+      link: metadata.baseUrl
+    }
+  }
+
+  /**
    * Upload file using round-robin strategy
    */
   async uploadFile(
@@ -131,66 +163,60 @@ export class UnifiedStorage {
       throw new Error('Upload is only available server-side')
     }
 
-    const storageType = this.getNextStorage()
-    let metadata: FileMetadata
+    const startStorage = this.getNextStorage()
+    let currentStorage = startStorage
+    let attempts = 0
+    const maxAttempts = 3
     let lastError: Error | null = null
 
-    // Try primary storage
-    try {
-      if (storageType === 'telegram' && this.telegramStorage) {
-        const telegramMeta = await this.telegramStorage.uploadFile(fileName, buffer, {
-          mimeType: options?.mimeType,
-          description: options?.description,
-          caption: options?.caption,
-        })
-        metadata = this.convertTelegramMetadata(telegramMeta)
-        this.storageMap.set(metadata.fileId, 'telegram')
-        return metadata
-      } else if (storageType === 'streamtape' && this.streamtapeStorage) {
-        const streamtapeMeta = await this.streamtapeStorage.uploadFile(fileName, buffer, {
-          folder: options?.folder,
-          mimeType: options?.mimeType,
-        })
-        metadata = this.convertStreamtapeMetadata(streamtapeMeta)
-        this.storageMap.set(metadata.fileId, 'streamtape')
-        return metadata
+    // Try storages in order until one succeeds
+    while (attempts < maxAttempts) {
+      try {
+        if (currentStorage === 'telegram' && this.telegramStorage) {
+          const telegramMeta = await this.telegramStorage.uploadFile(fileName, buffer, {
+            mimeType: options?.mimeType,
+            description: options?.description,
+            caption: options?.caption,
+          })
+          const metadata = this.convertTelegramMetadata(telegramMeta)
+          this.storageMap.set(metadata.fileId, 'telegram')
+          return metadata
+        } else if (currentStorage === 'streamtape' && this.streamtapeStorage) {
+          const streamtapeMeta = await this.streamtapeStorage.uploadFile(fileName, buffer, {
+            folder: options?.folder,
+            mimeType: options?.mimeType,
+          })
+          const metadata = this.convertStreamtapeMetadata(streamtapeMeta)
+          this.storageMap.set(metadata.fileId, 'streamtape')
+          return metadata
+        } else if (currentStorage === 'googlephotos' && this.googlePhotosStorage) {
+          const gphotosMeta = await this.googlePhotosStorage.uploadFile(fileName, buffer, {
+             mimeType: options?.mimeType,
+             description: options?.description,
+             caption: options?.caption
+          })
+          const metadata = this.convertGooglePhotosMetadata(gphotosMeta)
+          this.storageMap.set(metadata.fileId, 'googlephotos')
+          return metadata
+        }
+      } catch (error) {
+        lastError = error as Error
+        console.warn(`Failed to upload to ${currentStorage}, trying next:`, error)
       }
-    } catch (error) {
-      lastError = error as Error
-      console.warn(`Failed to upload to ${storageType}, trying fallback:`, error)
+
+      // Move to next storage
+      if (currentStorage === 'telegram') currentStorage = 'streamtape'
+      else if (currentStorage === 'streamtape') currentStorage = 'googlephotos'
+      else currentStorage = 'telegram'
+      
+      attempts++
     }
 
-    // Fallback to other storage
-    const fallbackType: StorageType = storageType === 'telegram' ? 'streamtape' : 'telegram'
-    try {
-      if (fallbackType === 'telegram' && this.telegramStorage) {
-        const telegramMeta = await this.telegramStorage.uploadFile(fileName, buffer, {
-          mimeType: options?.mimeType,
-          description: options?.description,
-          caption: options?.caption,
-        })
-        metadata = this.convertTelegramMetadata(telegramMeta)
-        this.storageMap.set(metadata.fileId, 'telegram')
-        return metadata
-      } else if (fallbackType === 'streamtape' && this.streamtapeStorage) {
-        const streamtapeMeta = await this.streamtapeStorage.uploadFile(fileName, buffer, {
-          folder: options?.folder,
-          mimeType: options?.mimeType,
-        })
-        metadata = this.convertStreamtapeMetadata(streamtapeMeta)
-        this.storageMap.set(metadata.fileId, 'streamtape')
-        return metadata
-      }
-    } catch (error) {
-      console.error('Fallback upload also failed:', error)
-      throw lastError || new Error('Both storage backends failed')
-    }
-
-    throw new Error('No storage backends available')
+    throw lastError || new Error('All storage backends failed')
   }
 
   /**
-   * Download file - try primary storage, fallback to secondary
+   * Download file - try primary storage, fallback to others
    */
   async downloadFileById(fileId: string): Promise<Buffer | null> {
     if (typeof window !== 'undefined') {
@@ -200,28 +226,32 @@ export class UnifiedStorage {
     // Check which storage this file is in
     const storageType = this.storageMap.get(fileId)
 
-    // Try known storage first
-    if (storageType === 'telegram' && this.telegramStorage) {
-      const buffer = await this.telegramStorage.downloadFileById(fileId)
-      if (buffer) return buffer
-    } else if (storageType === 'streamtape' && this.streamtapeStorage) {
-      const buffer = await this.streamtapeStorage.downloadFileById(fileId)
-      if (buffer) return buffer
-    }
-
-    // If not found or storage type unknown, try both
-    if (this.telegramStorage) {
-      const buffer = await this.telegramStorage.downloadFileById(fileId)
-      if (buffer) {
-        this.storageMap.set(fileId, 'telegram')
-        return buffer
+    // Helper to try download
+    const tryDownload = async (type: StorageType): Promise<Buffer | null> => {
+      if (type === 'telegram' && this.telegramStorage) {
+        return await this.telegramStorage.downloadFileById(fileId)
+      } else if (type === 'streamtape' && this.streamtapeStorage) {
+        return await this.streamtapeStorage.downloadFileById(fileId)
+      } else if (type === 'googlephotos' && this.googlePhotosStorage) {
+        return await this.googlePhotosStorage.downloadFileById(fileId)
       }
+      return null
     }
 
-    if (this.streamtapeStorage) {
-      const buffer = await this.streamtapeStorage.downloadFileById(fileId)
+    // 1. Try known storage
+    if (storageType) {
+      const buffer = await tryDownload(storageType)
+      if (buffer) return buffer
+    }
+
+    // 2. Try all storages (fallback)
+    const types: StorageType[] = ['telegram', 'streamtape', 'googlephotos']
+    for (const type of types) {
+      if (type === storageType) continue // Already tried
+      
+      const buffer = await tryDownload(type)
       if (buffer) {
-        this.storageMap.set(fileId, 'streamtape')
+        this.storageMap.set(fileId, type) // Update mapping
         return buffer
       }
     }
@@ -240,6 +270,8 @@ export class UnifiedStorage {
       return this.streamtapeStorage.getFileUrl(fileId)
     } else if (type === 'telegram' && this.telegramStorage) {
       return this.telegramStorage.getFileUrl(fileId)
+    } else if (type === 'googlephotos' && this.googlePhotosStorage) {
+      return this.googlePhotosStorage.getFileUrl(fileId)
     }
 
     // Fallback
@@ -268,6 +300,10 @@ export class UnifiedStorage {
           this.storageMap.delete(fileId)
         }
         return result
+      } else if (storageType === 'googlephotos') {
+         // Google Photos API doesn't easily support deletion via ID without album management
+         this.storageMap.delete(fileId)
+         return true
       }
     } catch (error) {
       console.error('Error deleting file:', error)
@@ -314,6 +350,11 @@ export class UnifiedStorage {
             linkId: fileData.linkid,
           })
         }
+      } else if (storageType === 'googlephotos' && this.googlePhotosStorage) {
+          const meta = await this.googlePhotosStorage.getFileMetadata(fileId)
+          if (meta) {
+              return this.convertGooglePhotosMetadata(meta)
+          }
       }
     } catch (error) {
       console.error('Error getting file metadata:', error)
@@ -346,6 +387,3 @@ export function getUnifiedStorage(): UnifiedStorage {
   }
   return unifiedStorageInstance
 }
-
-
-
