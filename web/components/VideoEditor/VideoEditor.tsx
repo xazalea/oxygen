@@ -4,7 +4,7 @@ import { PreviewCanvas } from './Canvas/PreviewCanvas'
 import { EditorToolbar } from './Toolbar/EditorToolbar'
 import { exportVideo } from '@/lib/video-editor/export-handler'
 import { useEditorStore } from '@/lib/video-editor/store'
-import { TimelineEditor } from '@/components/VideoEditor/Timeline/TimelineEditor' // Using absolute import
+import { TimelineEditor } from './Timeline/TimelineEditor' // Using absolute import
 
 interface VideoEditorProps {
   initialVideoUrl?: string

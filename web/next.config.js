@@ -25,6 +25,10 @@ const nextConfig = {
         buffer: false,
       };
 
+      // --- FIX FOR LIBSODIUM-WRAPPERS ---
+      config.resolve.alias['libsodium-wrappers$'] = 'libsodium-wrappers/dist/modules/libsodium-wrappers.js';
+      config.resolve.alias['./libsodium.mjs'] = 'libsodium-wrappers/dist/modules/libsodium-wrappers.js'; // Additional alias
+
       config.module.rules.push({
         test: /libsodium-wrappers/,
         resolve: {
