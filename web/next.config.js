@@ -27,8 +27,14 @@ const nextConfig = {
 
       // --- FIX FOR LIBSODIUM-WRAPPERS ---
       // Force all imports of libsodium-wrappers to point to the UMD/CommonJS build
-      config.resolve.alias['libsodium-wrappers'] = 'libsodium-wrappers';
-      config.resolve.alias['./libsodium.mjs'] = 'libsodium-wrappers'; 
+      config.resolve.alias['libsodium-wrappers$'] = path.resolve(__dirname, 'node_modules/libsodium-wrappers/dist/modules/libsodium-wrappers.js');
+      
+      // Fix the internal relative import in libsodium-wrappers by pointing to the file that exists
+      // Assuming modules-esm is where the error originates, we redirect the request
+      config.resolve.alias['./libsodium.mjs'] = path.resolve(__dirname, 'node_modules/libsodium-wrappers/dist/modules/libsodium.js');
+
+      // Add fallback for ESM module resolution if needed
+      config.resolve.alias['libsodium-wrappers/dist/modules-esm/libsodium-wrappers.mjs'] = path.resolve(__dirname, 'node_modules/libsodium-wrappers/dist/modules/libsodium-wrappers.js');
 
       config.module.rules.push({
         test: /libsodium-wrappers/,
