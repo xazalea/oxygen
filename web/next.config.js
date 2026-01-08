@@ -24,6 +24,13 @@ const nextConfig = {
         zlib: false,
         buffer: false,
       };
+
+      config.module.rules.push({
+        test: /libsodium-wrappers/,
+        resolve: {
+          fullySpecified: false
+        }
+      });
       
       // Externalize Node.js-only packages for client bundle
       config.externals = config.externals || [];
@@ -58,11 +65,7 @@ const nextConfig = {
       // --- FIX FOR LIBSODIUM-WRAPPERS ---
       // Force resolution to the UMD/CJS build to avoid ESM resolution issues
       config.resolve.alias['libsodium-wrappers$'] = 'libsodium-wrappers/dist/modules/libsodium-wrappers.js';
-      config.resolve.alias['libsodium-wrappers/dist/modules-esm/libsodium-wrappers.mjs'] = 'libsodium-wrappers/dist/modules/libsodium-wrappers.js';
       
-      // Critical fix: Alias the internal relative import that fails
-      config.resolve.alias['./libsodium.mjs'] = 'libsodium-wrappers/dist/modules/libsodium-wrappers.js';
-
       // --- FIX FOR ONNXRUNTIME-WEB (Dynamic Require) ---
       // Add IgnorePlugin to ignore dynamic requires in onnxruntime-web
       config.plugins.push(

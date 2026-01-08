@@ -3,6 +3,7 @@
 import React, { useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useEditorStore, Clip } from '@/lib/video-editor/store'
+import { LiquidGlass } from '@/components/UI/LiquidGlass'
 
 export function TimelineEditor() {
   const { clips, tracks, currentTime, duration, zoom, setCurrentTime, setSelectedClipId } = useEditorStore()
