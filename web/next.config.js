@@ -73,6 +73,12 @@ const nextConfig = {
           resourceRegExp: /^onnxruntime-node$|^node:/,
         })
       );
+
+      // Disable parsing for the problematic ort files to avoid syntax errors
+      config.module.rules.push({
+        test: /ort\.node\.min\.mjs$/,
+        use: 'null-loader', // Use null-loader or ignore
+      });
     }
     return config;
   },

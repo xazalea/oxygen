@@ -1,11 +1,10 @@
-'use client'
-
-import React, { useEffect } from 'react'
-import { TimelineEditor } from '@/components/VideoEditor/Timeline/TimelineEditor'
+// TimelineEditor import temporarily commented out for debugging
+// import { TimelineEditor } from './Timeline/TimelineEditor'
 import { PreviewCanvas } from './Canvas/PreviewCanvas'
 import { EditorToolbar } from './Toolbar/EditorToolbar'
 import { exportVideo } from '@/lib/video-editor/export-handler'
 import { useEditorStore } from '@/lib/video-editor/store'
+import { TimelineEditor } from '@/components/VideoEditor/Timeline/TimelineEditor' // Using absolute import
 
 interface VideoEditorProps {
   initialVideoUrl?: string
@@ -63,4 +62,3 @@ export function VideoEditor({ initialVideoUrl, initialVideoId, onExport, onCance
     </div>
   )
 }
-
