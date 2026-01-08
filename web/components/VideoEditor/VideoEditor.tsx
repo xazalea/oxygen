@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect } from 'react'
-import { TimelineEditor } from './Timeline/TimelineEditor'
+import { TimelineEditor } from '@/components/VideoEditor/Timeline/TimelineEditor'
 import { PreviewCanvas } from './Canvas/PreviewCanvas'
 import { EditorToolbar } from './Toolbar/EditorToolbar'
 import { exportVideo } from '@/lib/video-editor/export-handler'
