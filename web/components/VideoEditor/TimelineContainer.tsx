@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { useEditorStore, Clip } from '@/lib/video-editor/store'
 import { LiquidGlass } from '@/components/UI/LiquidGlass'
 
-export function TimelineEditor() {
+export function TimelineContainer() {
   const { clips, tracks, currentTime, duration, zoom, setCurrentTime, setSelectedClipId } = useEditorStore()
   const timelineRef = useRef<HTMLDivElement>(null)
 

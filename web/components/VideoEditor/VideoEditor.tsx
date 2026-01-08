@@ -57,7 +57,7 @@ export function VideoEditor({ initialVideoUrl, initialVideoId, onExport, onCance
       
       <div className="flex-1 flex flex-col relative">
         <PreviewCanvas />
-        <TimelineEditor />
+        <TimelineContainer />
       </div>
     </div>
   )
