@@ -1,7 +1,8 @@
+'use client'
+
 import React, { useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useEditorStore, Clip } from '@/lib/video-editor/store'
-import { LiquidGlass } from '@/components/UI/LiquidGlass'
 
 export function TimelineEditor() {
   const { clips, tracks, currentTime, duration, zoom, setCurrentTime, setSelectedClipId } = useEditorStore()
@@ -110,4 +111,3 @@ function getClipColor(type: Clip['type']) {
     default: return 'rgba(107, 114, 128, 0.5)' // gray
   }
 }
-
