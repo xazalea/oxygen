@@ -51,7 +51,14 @@
     "crystals-kyber": "^1.0.6",
     "protobufjs": "^7.2.5",
     "date-fns": "^2.30.0",
-    "peerjs": "^1.5.1"
+    "peerjs": "^1.5.1",
+    "@benev/slate": "^0.1.0",
+    "@benev/construct": "^0.0.0",
+    "@webav/av-canvas": "^1.2.7",
+    "@webav/av-cliper": "^1.2.7",
+    "mp4box": "^0.5.2",
+    "gl-transitions": "^1.43.0",
+    "pixi.js": "^7.4.2"
   },
   "devDependencies": {
     "@types/node": "^20.9.0",

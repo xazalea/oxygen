@@ -137,9 +137,14 @@ export default function CreatePage() {
                   variant="ghost"
                   size="md"
                   className="flex-1 flex items-center justify-center gap-2"
+                  onClick={() => {
+                     // In a real app we'd upload first to get an ID/URL, 
+                     // but for now we'll just pass the local preview URL
+                     window.location.href = `/create/edit?videoUrl=${encodeURIComponent(preview || '')}`
+                  }}
                 >
                   <Sparkles className="w-5 h-5" />
-                  Effects
+                  Edit Video
                 </UiverseButton>
                 <UiverseButton
                   variant="ghost"
