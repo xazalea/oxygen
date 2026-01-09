@@ -26,27 +26,28 @@ const nextConfig = {
       };
 
       // --- FIX FOR LIBSODIUM-WRAPPERS ---
-      // Fix the ESM import failure by patching the package resolution
-      config.plugins.push(
-        new webpack.NormalModuleReplacementPlugin(
-          /libsodium-wrappers\/dist\/modules-esm\/libsodium-wrappers\.mjs/,
-          (resource) => {
-             // Fallback to the main entry point if specific file path is tricky
-             resource.request = 'libsodium-wrappers';
-          }
-        )
-      );
-      
-      // Also catch any relative imports of .mjs within that package
-      config.plugins.push(
-        new webpack.NormalModuleReplacementPlugin(
-          /\.\/libsodium\.mjs/,
-          (resource) => {
-             // Redirect to the main package entry, hoping it resolves correctly to CJS
-             resource.request = 'libsodium-wrappers';
-          }
-        )
-      );
+      try {
+        // Attempt to resolve the CommonJS build directly
+        // We look for the specific file that is known to work in Node/Webpack
+        const cjsPath = require.resolve('libsodium-wrappers/dist/modules/libsodium-wrappers.js');
+        const cjsDir = path.dirname(cjsPath);
+        const cjsCorePath = path.join(cjsDir, 'libsodium.js');
+
+        // 1. Force the package import to use the CJS build
+        config.resolve.alias['libsodium-wrappers$'] = cjsPath;
+
+        // 2. Intercept requests for the ESM build and redirect to CJS
+        // This handles cases where other packages might import the ESM build directly or 'module' field is used
+        config.resolve.alias['libsodium-wrappers/dist/modules-esm/libsodium-wrappers.mjs'] = cjsPath;
+
+        // 3. Last line of defense: if the ESM build IS loaded, intercept its failing internal import
+        // and redirect it to the CJS core file
+        config.resolve.alias['./libsodium.mjs'] = cjsCorePath;
+        
+        console.log('Build: Successfully aliased libsodium-wrappers to CJS build:', cjsPath);
+      } catch (error) {
+        console.warn('Build: Could not resolve libsodium-wrappers CJS build. Build might fail.', error);
+      }
 
       config.module.rules.push({
         test: /libsodium-wrappers/,
