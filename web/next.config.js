@@ -26,23 +26,22 @@ const nextConfig = {
       };
 
       // --- FIX FOR LIBSODIUM-WRAPPERS ---
-      // Use NormalModuleReplacementPlugin to redirect ESM requests to CJS
+      // Fix the ESM import failure by patching the package resolution
       config.plugins.push(
         new webpack.NormalModuleReplacementPlugin(
-          /dist\/modules-esm\/libsodium-wrappers\.mjs$/,
+          /libsodium-wrappers\/dist\/modules-esm\/libsodium-wrappers\.mjs/,
           (resource) => {
-            // Redirect to the CJS version in dist/modules/libsodium-wrappers.js
-            resource.request = resource.request.replace('modules-esm', 'modules').replace('.mjs', '.js');
+             resource.request = path.resolve(__dirname, 'node_modules/libsodium-wrappers/dist/modules/libsodium-wrappers.js');
           }
         )
       );
       
-      // Fallback: Catch the specific failing relative import just in case
+      // Also catch any relative imports of .mjs within that package
       config.plugins.push(
         new webpack.NormalModuleReplacementPlugin(
           /\.\/libsodium\.mjs/,
           (resource) => {
-             resource.request = resource.request.replace('.mjs', '.js');
+             resource.request = path.resolve(__dirname, 'node_modules/libsodium-wrappers/dist/modules/libsodium.js');
           }
         )
       );
