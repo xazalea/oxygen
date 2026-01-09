@@ -31,7 +31,8 @@ const nextConfig = {
         new webpack.NormalModuleReplacementPlugin(
           /libsodium-wrappers\/dist\/modules-esm\/libsodium-wrappers\.mjs/,
           (resource) => {
-             resource.request = path.resolve(__dirname, 'node_modules/libsodium-wrappers/dist/modules/libsodium-wrappers.js');
+             // Fallback to the main entry point if specific file path is tricky
+             resource.request = 'libsodium-wrappers';
           }
         )
       );
@@ -41,7 +42,8 @@ const nextConfig = {
         new webpack.NormalModuleReplacementPlugin(
           /\.\/libsodium\.mjs/,
           (resource) => {
-             resource.request = path.resolve(__dirname, 'node_modules/libsodium-wrappers/dist/modules/libsodium.js');
+             // Redirect to the main package entry, hoping it resolves correctly to CJS
+             resource.request = 'libsodium-wrappers';
           }
         )
       );
