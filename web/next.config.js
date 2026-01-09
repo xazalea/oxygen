@@ -26,15 +26,33 @@ const nextConfig = {
       };
 
       // --- FIX FOR LIBSODIUM-WRAPPERS ---
-      // Force resolution to the UMD/CommonJS build
-      config.resolve.alias['libsodium-wrappers'] = path.join(__dirname, 'node_modules/libsodium-wrappers/dist/modules/libsodium-wrappers.js');
+      // Use NormalModuleReplacementPlugin to redirect ESM requests to CJS
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /dist\/modules-esm\/libsodium-wrappers\.mjs$/,
+          (resource) => {
+            // Redirect to the CJS version in dist/modules/libsodium-wrappers.js
+            resource.request = resource.request.replace('modules-esm', 'modules').replace('.mjs', '.js');
+          }
+        )
+      );
       
-      // Also catch the specific ESM file if it gets resolved and force it to the JS version
-      config.resolve.alias[path.join(__dirname, 'node_modules/libsodium-wrappers/dist/modules-esm/libsodium-wrappers.mjs')] = 
-        path.join(__dirname, 'node_modules/libsodium-wrappers/dist/modules/libsodium-wrappers.js');
+      // Fallback: Catch the specific failing relative import just in case
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /\.\/libsodium\.mjs/,
+          (resource) => {
+             resource.request = resource.request.replace('.mjs', '.js');
+          }
+        )
+      );
 
-      // Catch the internal relative import
-      config.resolve.alias['./libsodium.mjs'] = path.join(__dirname, 'node_modules/libsodium-wrappers/dist/modules/libsodium.js');
+      config.module.rules.push({
+        test: /libsodium-wrappers/,
+        resolve: {
+          fullySpecified: false
+        }
+      });
 
       config.module.rules.push({
         test: /libsodium-wrappers/,
