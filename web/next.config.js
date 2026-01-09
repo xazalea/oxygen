@@ -54,13 +54,6 @@ const nextConfig = {
           fullySpecified: false
         }
       });
-
-      config.module.rules.push({
-        test: /libsodium-wrappers/,
-        resolve: {
-          fullySpecified: false
-        }
-      });
       
       // Externalize Node.js-only packages for client bundle
       config.externals = config.externals || [];
