@@ -103,3 +103,4 @@ class SmartCompressor:
             logger.warning(f"Image compression failed, falling back to generic: {e}")
             self._compress_generic(input_path, output_path)
 
+

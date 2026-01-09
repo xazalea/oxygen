@@ -94,3 +94,4 @@ export function ThreadCard({ thread, onLike, onReply, onRepost }: ThreadCardProp
   )
 }
 
+

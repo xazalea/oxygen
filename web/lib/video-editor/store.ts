@@ -73,3 +73,4 @@ export const useEditorStore = create<EditorState>((set) => ({
   setSelectedClipId: (selectedClipId) => set({ selectedClipId }),
 }))
 
+
