@@ -27,30 +27,48 @@ const nextConfig = {
 
       // --- FIX FOR LIBSODIUM-WRAPPERS ---
       try {
-        // Just resolve the package name itself to get the main entry point defined in package.json
-        const sodiumPath = require.resolve('libsodium-wrappers');
-        
-        // We'll assume the core file is in the same directory as the main entry point
-        // This is a heuristic, but usually true for these wrapper packages
-        const sodiumDir = path.dirname(sodiumPath);
-        // Fallback core path if we can't find 'libsodium.js' specifically via require.resolve (which we can't due to exports)
-        // We'll just alias the relative import to the main package path as a fallback
-        
-        console.log('Build: Resolved libsodium-wrappers to:', sodiumPath);
+        const cjsPath = require.resolve('libsodium-wrappers/dist/modules/libsodium-wrappers.js');
+        const cjsDir = path.dirname(cjsPath);
+        const cjsCorePath = path.join(cjsDir, 'libsodium.js');
 
-        // Force 'libsodium-wrappers' to resolve to the CJS file
-        config.resolve.alias['libsodium-wrappers$'] = sodiumPath;
-        
-        // Redirect the specific ESM file to CJS if it still gets picked up
-        // We use the package-relative path for the key to match what Webpack sees
-        config.resolve.alias['libsodium-wrappers/dist/modules-esm/libsodium-wrappers.mjs'] = sodiumPath;
+        console.log('Build: Resolved libsodium-wrappers CJS to:', cjsPath);
 
-        // Redirect the failing relative import to the main CJS entry point
-        // This effectively makes './libsodium.mjs' -> 'libsodium-wrappers.js' (CJS)
-        config.resolve.alias['./libsodium.mjs'] = sodiumPath;
+        // 1. Force the package name to resolve to CJS
+        config.resolve.alias['libsodium-wrappers$'] = cjsPath;
+
+        // 2. Use NormalModuleReplacementPlugin to intercept specific file requests
+        // This is more powerful than alias for internal file requests
+        config.plugins.push(
+          new webpack.NormalModuleReplacementPlugin(
+            /libsodium-wrappers\.mjs$/,
+            (resource) => {
+              // If something tries to import the .mjs wrapper, give them the .js wrapper
+              resource.request = cjsPath;
+            }
+          )
+        );
+
+        config.plugins.push(
+          new webpack.NormalModuleReplacementPlugin(
+            /\.\/libsodium\.mjs$/,
+            (resource) => {
+              // If the broken .mjs wrapper (if it still loads) tries to import ./libsodium.mjs,
+              // give it the CJS core file instead
+              resource.request = cjsCorePath;
+            }
+          )
+        );
+
       } catch (e) {
-        console.warn('Build: Could not resolve libsodium-wrappers for aliasing:', e);
+        console.warn('Build: Could not resolve libsodium-wrappers for patching:', e);
       }
+
+      config.module.rules.push({
+        test: /libsodium-wrappers/,
+        resolve: {
+          fullySpecified: false
+        }
+      });
 
       config.module.rules.push({
         test: /libsodium-wrappers/,
